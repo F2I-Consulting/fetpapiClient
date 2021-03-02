@@ -26,6 +26,10 @@ find_package(Fetpapi REQUIRED)
 
 if (WIN32)
 	target_link_libraries (${APPLICATION_NAME} PRIVATE bcrypt.lib)
+	
+	set_target_properties (etpClientExample PROPERTIES
+		LINK_FLAGS "/INCREMENTAL:NO"
+		RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 endif (WIN32)
 
 target_compile_definitions(${APPLICATION_NAME} PRIVATE BOOST_ALL_NO_LIB)
