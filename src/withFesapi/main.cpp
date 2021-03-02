@@ -16,24 +16,25 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -----------------------------------------------------------------------*/
-#include "fetpapi/etp/ClientSessionLaunchers.h"
-#include "fetpapi/etp/HttpClientSession.h"
+#include "etp/ClientSessionLaunchers.h"
+#include "etp/EtpHdfProxy.h"
+#include "etp/HttpClientSession.h"
 #ifdef WITH_ETP_SSL
-#include "fetpapi/etp/ssl/HttpsClientSession.h"
+#include "etp/ssl/HttpsClientSession.h"
 #endif
 
 #include "MyOwnCoreProtocolHandlers.h"
 #include "MyOwnDiscoveryProtocolHandlers.h"
 #include "MyOwnStoreProtocolHandlers.h"
-#include "fetpapi/etp/ProtocolHandlers/DataArrayHandlers.h"
-#include "fetpapi/etp/ProtocolHandlers/StoreNotificationHandlers.h"
+#include "etp/ProtocolHandlers/DataArrayHandlers.h"
+#include "etp/ProtocolHandlers/StoreNotificationHandlers.h"
 
 using namespace ETP_NS;
 
-void setProtocolHandlers(std::shared_ptr<ETP_NS::AbstractSession> session) {
-	session->setCoreProtocolHandlers(std::make_shared<MyOwnCoreProtocolHandlers>(session.get()));
-	session->setDiscoveryProtocolHandlers(std::make_shared<MyOwnDiscoveryProtocolHandlers>(session.get()));
-	session->setStoreProtocolHandlers(std::make_shared<MyOwnStoreProtocolHandlers>(session.get()));
+void setProtocolHandlers(std::shared_ptr<ETP_NS::AbstractSession> session, COMMON_NS::DataObjectRepository* repo) {
+	session->setCoreProtocolHandlers(std::make_shared<MyOwnCoreProtocolHandlers>(session.get(), repo));
+	session->setDiscoveryProtocolHandlers(std::make_shared<MyOwnDiscoveryProtocolHandlers>(session.get(), repo));
+	session->setStoreProtocolHandlers(std::make_shared<MyOwnStoreProtocolHandlers>(session.get(), repo));
 	session->setDataArrayProtocolHandlers(std::make_shared<ETP_NS::DataArrayHandlers>(session.get()));
 	session->setStoreNotificationProtocolHandlers(std::make_shared<ETP_NS::StoreNotificationHandlers>(session.get()));
 }
@@ -45,8 +46,8 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	if (argc == 4 && (argv[3][0] != '/' || argv[3][strlen(argv[3]) - 1] != '/')) {
-		std::cerr << "Please put a slash at the start and at the end of the target " << argv[3] << std::endl;
+	if (argc == 4 && (argv[3][0] != '/')) {
+		std::cerr << "Please put a slash at the start of the target " << argv[3] << std::endl;
 		return 1;
 	}
 
@@ -113,6 +114,9 @@ int main(int argc, char **argv)
 
 		auto httpsClientSession = std::make_shared<HttpsClientSession>(ioc, ctx);
 		std::string etpServerCapTarget = argc >= 4 ? argv[3] : "/";
+		if (etpServerCapTarget[etpServerCapTarget.size() - 1] != '/') {
+			etpServerCapTarget += '/';
+		}
 		etpServerCapTarget += ".well-known/etp-server-capabilities?GetVersion=etp12.energistics.org";
 		std::cout << "Requesting " << etpServerCapTarget << " to " << argv[1] << " on port " << argv[2] << std::endl;
 		httpsClientSession->run(argv[1], argv[2], etpServerCapTarget.c_str(), 11, authorization);
@@ -124,6 +128,9 @@ int main(int argc, char **argv)
 #endif
 		auto httpClientSession = std::make_shared<HttpClientSession>(ioc);
 		std::string etpServerCapTarget = argc >= 4 ? argv[3] : "/";
+		if (etpServerCapTarget[etpServerCapTarget.size() - 1] != '/') {
+			etpServerCapTarget += '/';
+		}
 		etpServerCapTarget += ".well-known/etp-server-capabilities?GetVersion=etp12.energistics.org";
 		std::cout << "Requesting " << etpServerCapTarget << " to " << argv[1] << " on port " << argv[2] << std::endl;
 		httpClientSession->run(argv[1], argv[2], etpServerCapTarget.c_str(), 11, authorization);
@@ -135,8 +142,8 @@ int main(int argc, char **argv)
 #endif
 
 	
-	//COMMON_NS::DataObjectRepository repo;
-	//repo.setHdfProxyFactory(new EtpHdfProxyFactory());
+	COMMON_NS::DataObjectRepository repo;
+	repo.setHdfProxyFactory(new EtpHdfProxyFactory());
 
 	bool successfulConnection = false;
 #ifdef WITH_ETP_SSL
@@ -149,7 +156,7 @@ int main(int argc, char **argv)
 	else {
 #endif
 		auto session = ClientSessionLaunchers::createWsClientSession(argv[1], argv[2], argc < 4 ? "/" : argv[3], authorization);
-		setProtocolHandlers(session);
+		setProtocolHandlers(session, &repo);
 		successfulConnection = session->run();
 #ifdef WITH_ETP_SSL
 	}

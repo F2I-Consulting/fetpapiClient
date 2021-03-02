@@ -20,7 +20,8 @@ under the License.
 
 #include <algorithm>
 
-#include <fetpapi/etp/AbstractSession.h>
+#include <etp/AbstractSession.h>
+#include <common/AbstractObject.h>
 
 void MyOwnDiscoveryProtocolHandlers::on_GetResourcesResponse(const Energistics::Etp::v12::Protocol::Discovery::GetResourcesResponse & msg, int64_t correlationId)
 {
@@ -40,20 +41,20 @@ void MyOwnDiscoveryProtocolHandlers::on_GetResourcesResponse(const Energistics::
 		std::cout << "*************************************************" << std::endl;
 
 
-		//if (std::find(getObjectWhenDiscovered.begin(), getObjectWhenDiscovered.end(), correlationId) != getObjectWhenDiscovered.end()) {
-		//	const size_t openingParenthesis = resource.uri.find('(', 5);
-		//	if (openingParenthesis != std::string::npos) {
-		//		auto resqmlObj = repo->getDataObjectByUuid(resource.uri.substr(openingParenthesis + 1, 36));
-		//		if (resqmlObj == nullptr || resqmlObj->isPartial()) {
-		//			std::cout << "GET OBJECT -----------------------------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;			
-		//			getO.uris[std::to_string(index)] = resource.uri;
-		//			++index;
-		//		}
-		//	}
-		//}
+		if (std::find(getObjectWhenDiscovered.begin(), getObjectWhenDiscovered.end(), correlationId) != getObjectWhenDiscovered.end()) {
+			const size_t openingParenthesis = resource.uri.find('(', 5);
+			if (openingParenthesis != std::string::npos) {
+				auto resqmlObj = repo->getDataObjectByUuid(resource.uri.substr(openingParenthesis + 1, 36));
+				if (resqmlObj == nullptr || resqmlObj->isPartial()) {
+					std::cout << "GET OBJECT -----------------------------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;			
+					getO.uris[std::to_string(index)] = resource.uri;
+					++index;
+				}
+			}
+		}
 	}
 
 	if (!getO.uris.empty()) {
-		session->send(getO);
+		session->send(getO, 0, 0x02);
 	}
 }

@@ -23,8 +23,17 @@ under the License.
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-#include <fetpapi/etp/EtpHelpers.h>
-#include <fetpapi/etp/PlainClientSession.h>
+#include <common/EpcDocument.h>
+
+#include <etp/EtpHdfProxy.h>
+#include <etp/EtpHelpers.h>
+#include <etp/PlainClientSession.h>
+
+#include <resqml2/ContinuousProperty.h>
+#include <resqml2/IjkGridExplicitRepresentation.h>
+#include <resqml2/PointSetRepresentation.h>
+
+#include <resqml2_0_1/LocalDepth3dCrs.h>
 
 #include "MyOwnDiscoveryProtocolHandlers.h"
 #include "MyOwnStoreProtocolHandlers.h"
@@ -49,7 +58,7 @@ void printHelp()
 	std::cout << "\tquit" << std::endl << "\t\tQuit the session." << std::endl << std::endl;
 }
 
-void askUser(ETP_NS::AbstractSession* session)
+void askUser(ETP_NS::AbstractSession* session, COMMON_NS::DataObjectRepository* repo)
 {
 	std::string buffer;
 
@@ -68,17 +77,18 @@ void askUser(ETP_NS::AbstractSession* session)
 			continue;
 		}
 			
-		//if (commandTokens[0] == "Load") {
-		//	COMMON_NS::EpcDocument epcDoc(commandTokens[1]);
-		//	epcDoc.deserializeInto(*repo);
-		//	std::cout << "LOADED!" << std::endl;
-		//	continue;
-		//}
+		if (commandTokens[0] == "Load") {
+			COMMON_NS::EpcDocument epcDoc(commandTokens[1]);
+			epcDoc.deserializeInto(*repo);
+			std::cout << "LOADED!" << std::endl;
+			continue;
+		}
 		else if (commandTokens[0] == "GetResources") {
 			Energistics::Etp::v12::Protocol::Discovery::GetResources mb;
 			mb.context.uri = commandTokens[1];
 			mb.scope = Energistics::Etp::v12::Datatypes::Object::ContextScopeKind::self;
 			mb.context.depth = 1;
+			mb.context.navigableEdges = Energistics::Etp::v12::Datatypes::Object::RelationshipKind::Primary;
 			mb.countObjects = true;
 
 			if (commandTokens.size() > 2) {
@@ -126,37 +136,37 @@ void askUser(ETP_NS::AbstractSession* session)
 			getO.uris = tokenMaps;
 			session->send(getO, 0, 0x02);
 		}
-		//else if (commandTokens[0] == "GetXYZPoints") {
-		//	/* This works in a blocking way i.e. getXyzPointCountOfPatch will return only when the store would have answered back.
-		//	HDF proxy factory and custom HDF proxy are used for that. See main.cpp for setting the custom HDF proxy factory.
-		//	You should also look at MyOwnStoreProtocolHandlers::on_GetDataObjectsResponse which allows to set the session information to the HDF proxy.
-		//	We could have hard set those information thanks to HDF proxy factory.
+		else if (commandTokens[0] == "GetXYZPoints") {
+			/* This works in a blocking way i.e. getXyzPointCountOfPatch will return only when the store would have answered back.
+			HDF proxy factory and custom HDF proxy are used for that. See main.cpp for setting the custom HDF proxy factory.
+			You should also look at MyOwnStoreProtocolHandlers::on_GetDataObjectsResponse which allows to set the session information to the HDF proxy.
+			We could have hard set those information thanks to HDF proxy factory.
 
-		//	If you would want non blocking approach, please see GetDataArrays which require more work to fill in the arguments.
-		//	*/
-		//	std::string uuid = commandTokens[1].substr(commandTokens[1].find("(") + 1, 36);
-		//	auto* rep = repo->getDataObjectByUuid<RESQML2_NS::AbstractRepresentation>(uuid);
-		//	if (rep == nullptr) {
-		//		std::cerr << " The URI " << commandTokens[1] << " does not correspond to a representation which is on client side. Please get first this dataobject from the store before to call GetXYZPoints on it." << std::endl;
-		//		continue;
-		//	}
-		//	auto xyzPointCount = rep->getXyzPointCountOfPatch(0);
-		//	std::unique_ptr<double[]> xyzPoints(new double[xyzPointCount * 3]);
-		//	rep->getXyzPointsOfPatch(0, xyzPoints.get());
-		//	for (auto xyzPointIndex = 0; xyzPointIndex < xyzPointCount && xyzPointIndex < 20; ++xyzPointIndex) {
-		//		std::cout << "XYZ Point Index " << xyzPointIndex << " : " << xyzPoints[xyzPointIndex * 3] << "," << xyzPoints[xyzPointIndex * 3 + 1] << "," << xyzPoints[xyzPointIndex * 3 + 2] << std::endl;
-		//	}
-		//}
-		//else if (commandTokens[0] == "PutDataObject") {		
-		//	auto* dataObj = repo->getDataObjectByUuid(commandTokens[1]);
-		//	if (dataObj != nullptr) {
-		//		Energistics::Etp::v12::Protocol::Store::PutDataObjects putDataObjects;
-		//		Energistics::Etp::v12::Datatypes::Object::DataObject dataObject = ETP_NS::EtpHelpers::buildEtpDataObjectFromEnergisticsObject(dataObj);
-		//		putDataObjects.dataObjects["0"] = dataObject;
+			If you would want non blocking approach, please see GetDataArrays which require more work to fill in the arguments.
+			*/
+			std::string uuid = commandTokens[1].substr(commandTokens[1].find("(") + 1, 36);
+			auto* rep = repo->getDataObjectByUuid<RESQML2_NS::AbstractRepresentation>(uuid);
+			if (rep == nullptr) {
+				std::cerr << " The URI " << commandTokens[1] << " does not correspond to a representation which is on client side. Please get first this dataobject from the store before to call GetXYZPoints on it." << std::endl;
+				continue;
+			}
+			auto xyzPointCount = rep->getXyzPointCountOfPatch(0);
+			std::unique_ptr<double[]> xyzPoints(new double[xyzPointCount * 3]);
+			rep->getXyzPointsOfPatch(0, xyzPoints.get());
+			for (auto xyzPointIndex = 0; xyzPointIndex < xyzPointCount && xyzPointIndex < 20; ++xyzPointIndex) {
+				std::cout << "XYZ Point Index " << xyzPointIndex << " : " << xyzPoints[xyzPointIndex * 3] << "," << xyzPoints[xyzPointIndex * 3 + 1] << "," << xyzPoints[xyzPointIndex * 3 + 2] << std::endl;
+			}
+		}
+		else if (commandTokens[0] == "PutDataObject") {		
+			auto* dataObj = repo->getDataObjectByUuid(commandTokens[1]);
+			if (dataObj != nullptr) {
+				Energistics::Etp::v12::Protocol::Store::PutDataObjects putDataObjects;
+				Energistics::Etp::v12::Datatypes::Object::DataObject dataObject = ETP_NS::EtpHelpers::buildEtpDataObjectFromEnergisticsObject(dataObj);
+				putDataObjects.dataObjects["0"] = dataObject;
 
-		//		session->send(putDataObjects, 0, 0x10 | 0x02); // 0x10 requires Acknowledge from the store
-		//	}			
-		//}
+				session->send(putDataObjects, 0, 0x10 | 0x02); // 0x10 requires Acknowledge from the store
+			}			
+		}
 		else if (commandTokens[0] == "SubscribeNotif") {
 			Energistics::Etp::v12::Protocol::StoreNotification::SubscribeNotifications mb;
 			Energistics::Etp::v12::Datatypes::Object::SubscriptionInfo subscriptionInfo;
@@ -213,7 +223,7 @@ void askUser(ETP_NS::AbstractSession* session)
 				session->send(ping, 0, 0x02); // 0x10 requires Acknowledge from the store
 				std::cout << "PING at " << ping.currentDateTime << std::endl;
 			}
-			/*else if (commandTokens[0] == "List") {
+			else if (commandTokens[0] == "List") {
 				std::cout << "*** START LISTING ***" << std::endl;
 				for (const auto& entryPair : repo->getDataObjects()) {
 					for (const auto* obj : entryPair.second) {
@@ -235,33 +245,33 @@ void askUser(ETP_NS::AbstractSession* session)
 					}
 				}
 				std::cout << "*** END LISTING ***" << std::endl;
-			}*/
-			//else if (commandTokens[0] == "PutXmldAndHdfAtOnce") {
-			//	// Create the point set representation, an ETP HDF proxy if necessary and a partial crs
-			//	RESQML2_NS::PointSetRepresentation* h1i1PointSetRep = repo->createPointSetRepresentation("", "Horizon1 Interp1 PointSetRep");
-			//	auto* crs = repo->createPartial<RESQML2_0_1_NS::LocalDepth3dCrs>("", "");
-			//	if (repo->getDefaultHdfProxy() == nullptr) {
-			//		auto* etpHdfProxy = repo->createHdfProxy("", "", "", "", COMMON_NS::DataObjectRepository::openingMode::READ_WRITE);
-			//		auto* plainClientSession = dynamic_cast<ETP_NS::PlainClientSession*>(session);
-			//		if (plainClientSession != nullptr) {
-			//			(dynamic_cast<ETP_NS::EtpHdfProxy*>(etpHdfProxy))->setSession(plainClientSession->getIoContext(), plainClientSession->getHost(), plainClientSession->getPort(), plainClientSession->getTarget());
-			//		}
-			//		repo->setDefaultHdfProxy(etpHdfProxy);
-			//	}
+			}
+			else if (commandTokens[0] == "PutXmldAndHdfAtOnce") {
+				// Create the point set representation, an ETP HDF proxy if necessary and a partial crs
+				RESQML2_NS::PointSetRepresentation* h1i1PointSetRep = repo->createPointSetRepresentation("", "Horizon1 Interp1 PointSetRep");
+				auto* crs = repo->createPartial<RESQML2_0_1_NS::LocalDepth3dCrs>("", "");
+				if (repo->getDefaultHdfProxy() == nullptr) {
+					auto* etpHdfProxy = repo->createHdfProxy("", "", "", "", COMMON_NS::DataObjectRepository::openingMode::READ_WRITE);
+					auto* plainClientSession = dynamic_cast<ETP_NS::PlainClientSession*>(session);
+					if (plainClientSession != nullptr) {
+						(dynamic_cast<ETP_NS::EtpHdfProxy*>(etpHdfProxy))->setSession(plainClientSession->getIoContext(), plainClientSession->getHost(), plainClientSession->getPort(), plainClientSession->getTarget());
+					}
+					repo->setDefaultHdfProxy(etpHdfProxy);
+				}
 
-			//	// Create and push the numeical values to the store
-			//	// Internally it uses the ETP Hdf proxy set as the default HDF proxy of the repository in main.cpp.
-			//	// pushBackGeometryPatch is a blocking method. If you want non blopcking method, you need to use PutDataArray directly.
-			//	double pointCoords[18] = { 10, 70, 301, 11, 21, 299, 150, 30, 301, 400, 0, 351, 450, 75, 340, 475, 100, 350 };
-			//	h1i1PointSetRep->pushBackGeometryPatch(6, pointCoords, nullptr, crs);
+				// Create and push the numeical values to the store
+				// Internally it uses the ETP Hdf proxy set as the default HDF proxy of the repository in main.cpp.
+				// pushBackGeometryPatch is a blocking method. If you want non blopcking method, you need to use PutDataArray directly.
+				double pointCoords[18] = { 10, 70, 301, 11, 21, 299, 150, 30, 301, 400, 0, 351, 450, 75, 340, 475, 100, 350 };
+				h1i1PointSetRep->pushBackGeometryPatch(6, pointCoords, nullptr, crs);
 
-			//	// Now send the XML part
-			//	Energistics::Etp::v12::Protocol::Store::PutDataObjects putDataObjects;
-			//	Energistics::Etp::v12::Datatypes::Object::DataObject dataObject = ETP_NS::EtpHelpers::buildEtpDataObjectFromEnergisticsObject(h1i1PointSetRep);
-			//	putDataObjects.dataObjects["0"] = dataObject;
+				// Now send the XML part
+				Energistics::Etp::v12::Protocol::Store::PutDataObjects putDataObjects;
+				Energistics::Etp::v12::Datatypes::Object::DataObject dataObject = ETP_NS::EtpHelpers::buildEtpDataObjectFromEnergisticsObject(h1i1PointSetRep);
+				putDataObjects.dataObjects["0"] = dataObject;
 
-			//	session->send(putDataObjects, 0, 0x02 | 0x10); // 0x10 requires Acknowledge from the store
-			//}
+				session->send(putDataObjects, 0, 0x02 | 0x10); // 0x10 requires Acknowledge from the store
+			}
 		}
 		else if (commandTokens.size() == 2) {
 			if (commandTokens[0] == "GetSourceObjects") {
@@ -269,6 +279,8 @@ void askUser(ETP_NS::AbstractSession* session)
 				mb.context.uri = commandTokens[1];
 				mb.scope = Energistics::Etp::v12::Datatypes::Object::ContextScopeKind::sources;
 				mb.context.depth = 1;
+				mb.context.navigableEdges = Energistics::Etp::v12::Datatypes::Object::RelationshipKind::Primary;
+				mb.countObjects = true;
 
 				std::static_pointer_cast<MyOwnDiscoveryProtocolHandlers>(session->getDiscoveryProtocolHandlers())->getObjectWhenDiscovered.push_back(session->send(mb, 0, 0x02));
 			}
@@ -277,6 +289,8 @@ void askUser(ETP_NS::AbstractSession* session)
 				mb.context.uri = commandTokens[1];
 				mb.scope = Energistics::Etp::v12::Datatypes::Object::ContextScopeKind::targets;
 				mb.context.depth = 1;
+				mb.context.navigableEdges = Energistics::Etp::v12::Datatypes::Object::RelationshipKind::Primary;
+				mb.countObjects = true;
 
 				std::static_pointer_cast<MyOwnDiscoveryProtocolHandlers>(session->getDiscoveryProtocolHandlers())->getObjectWhenDiscovered.push_back(session->send(mb, 0, 0x02));
 			}
@@ -285,6 +299,8 @@ void askUser(ETP_NS::AbstractSession* session)
 				mb.context.uri = commandTokens[1];
 				mb.scope = Energistics::Etp::v12::Datatypes::Object::ContextScopeKind::targetsOrSelf;
 				mb.context.depth = 1;
+				mb.context.navigableEdges = Energistics::Etp::v12::Datatypes::Object::RelationshipKind::Primary;
+				mb.countObjects = true;
 				std::static_pointer_cast<MyOwnDiscoveryProtocolHandlers>(session->getDiscoveryProtocolHandlers())->getObjectWhenDiscovered.push_back(session->send(mb, 0, 0x02));
 
 				mb.scope = Energistics::Etp::v12::Datatypes::Object::ContextScopeKind::sources;
@@ -318,9 +334,9 @@ void askUser(ETP_NS::AbstractSession* session)
 		}
 	}
 
-	//for (auto* hdfProxy : repo->getHdfProxySet()) {
-	//	hdfProxy->close();
-	//}
+	for (auto* hdfProxy : repo->getHdfProxySet()) {
+		hdfProxy->close();
+	}
 	session->close();
 }
 
@@ -328,6 +344,6 @@ void MyOwnCoreProtocolHandlers::on_OpenSession(const Energistics::Etp::v12::Prot
 {
 	// Ask the user about what he wants to do on another thread
 	// The main thread is on reading mode
-	std::thread askUserThread(askUser, session);
+	std::thread askUserThread(askUser, session, repo);
 	askUserThread.detach(); // Detach the thread since we don't want it to be a blocking one.
 }

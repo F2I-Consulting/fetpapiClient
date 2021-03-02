@@ -20,7 +20,9 @@ under the License.
 
 #include <string>
 
-#include <fetpapi/etp/PlainClientSession.h>
+#include <common/AbstractObject.h>
+#include <etp/EtpHdfProxy.h>
+#include <etp/PlainClientSession.h>
 
 void MyOwnStoreProtocolHandlers::on_GetDataObjectsResponse(const Energistics::Etp::v12::Protocol::Store::GetDataObjectsResponse & obj, int64_t correlationId)
 {
@@ -33,20 +35,20 @@ void MyOwnStoreProtocolHandlers::on_GetDataObjectsResponse(const Energistics::Et
 		std::cout << "xml : " << graphResource.second.data << std::endl;
 		std::cout << "*************************************************" << std::endl;
 
-		//COMMON_NS::AbstractObject* importedObj = repo->addOrReplaceGsoapProxy(graphResource.second.data, graphResource.second.resource.dataObjectType);
+		COMMON_NS::AbstractObject* importedObj = repo->addOrReplaceGsoapProxy(graphResource.second.data, graphResource.second.resource.dataObjectType);
 
-		//importedObj->loadTargetRelationships();
+		importedObj->loadTargetRelationships();
 
-		//// Associate session with the newly created hdf proxy.
-		//// For now, also associate with all hdf proxies.
-		//for (auto* hdfProxy : repo->getHdfProxySet()) {
-		//	auto* etpHdfProxy = dynamic_cast<ETP_NS::EtpHdfProxy*>(hdfProxy);
-		//	if (etpHdfProxy != nullptr) {
-		//		auto* plainClientSession = dynamic_cast<ETP_NS::PlainClientSession*>(session);
-		//		if (plainClientSession != nullptr) {
-		//			etpHdfProxy->setSession(plainClientSession->getIoContext(), plainClientSession->getHost(), plainClientSession->getPort(), plainClientSession->getTarget());
-		//		}
-		//	}
-		//}
+		// Associate session with the newly created hdf proxy.
+		// For now, also associate with all hdf proxies.
+		for (auto* hdfProxy : repo->getHdfProxySet()) {
+			auto* etpHdfProxy = dynamic_cast<ETP_NS::EtpHdfProxy*>(hdfProxy);
+			if (etpHdfProxy != nullptr) {
+				auto* plainClientSession = dynamic_cast<ETP_NS::PlainClientSession*>(session);
+				if (plainClientSession != nullptr) {
+					etpHdfProxy->setSession(plainClientSession->getIoContext(), plainClientSession->getHost(), plainClientSession->getPort(), plainClientSession->getTarget());
+				}
+			}
+		}
 	}
 }
