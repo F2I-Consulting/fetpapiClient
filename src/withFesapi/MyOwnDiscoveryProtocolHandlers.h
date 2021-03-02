@@ -18,9 +18,9 @@ under the License.
 -----------------------------------------------------------------------*/
 #pragma once
 
-#include "etp/ProtocolHandlers/DiscoveryHandlers.h"
+#include "fetpapi/etp/ProtocolHandlers/DiscoveryHandlers.h"
 
-#include "common/DataObjectRepository.h"
+#include "fesapi/common/DataObjectRepository.h"
 
 class MyOwnDiscoveryProtocolHandlers : public ETP_NS::DiscoveryHandlers
 {

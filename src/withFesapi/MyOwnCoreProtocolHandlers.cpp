@@ -23,17 +23,17 @@ under the License.
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-#include <common/EpcDocument.h>
+#include <fesapi/common/EpcDocument.h>
 
-#include <etp/EtpHdfProxy.h>
-#include <etp/EtpHelpers.h>
-#include <etp/PlainClientSession.h>
+#include <fetpapi/etp/fesapi/FesapiHdfProxy.h>
+#include <fetpapi/etp/fesapi/FesapiHelpers.h>
+#include <fetpapi/etp/PlainClientSession.h>
 
-#include <resqml2/ContinuousProperty.h>
-#include <resqml2/IjkGridExplicitRepresentation.h>
-#include <resqml2/PointSetRepresentation.h>
+#include <fesapi/resqml2/ContinuousProperty.h>
+#include <fesapi/resqml2/IjkGridExplicitRepresentation.h>
+#include <fesapi/resqml2/PointSetRepresentation.h>
 
-#include <resqml2_0_1/LocalDepth3dCrs.h>
+#include <fesapi/resqml2_0_1/LocalDepth3dCrs.h>
 
 #include "MyOwnDiscoveryProtocolHandlers.h"
 #include "MyOwnStoreProtocolHandlers.h"
@@ -161,7 +161,7 @@ void askUser(ETP_NS::AbstractSession* session, COMMON_NS::DataObjectRepository* 
 			auto* dataObj = repo->getDataObjectByUuid(commandTokens[1]);
 			if (dataObj != nullptr) {
 				Energistics::Etp::v12::Protocol::Store::PutDataObjects putDataObjects;
-				Energistics::Etp::v12::Datatypes::Object::DataObject dataObject = ETP_NS::EtpHelpers::buildEtpDataObjectFromEnergisticsObject(dataObj);
+				Energistics::Etp::v12::Datatypes::Object::DataObject dataObject = ETP_NS::FesapiHelpers::buildEtpDataObjectFromEnergisticsObject(dataObj);
 				putDataObjects.dataObjects["0"] = dataObject;
 
 				session->send(putDataObjects, 0, 0x10 | 0x02); // 0x10 requires Acknowledge from the store
@@ -254,7 +254,7 @@ void askUser(ETP_NS::AbstractSession* session, COMMON_NS::DataObjectRepository* 
 					auto* etpHdfProxy = repo->createHdfProxy("", "", "", "", COMMON_NS::DataObjectRepository::openingMode::READ_WRITE);
 					auto* plainClientSession = dynamic_cast<ETP_NS::PlainClientSession*>(session);
 					if (plainClientSession != nullptr) {
-						(dynamic_cast<ETP_NS::EtpHdfProxy*>(etpHdfProxy))->setSession(plainClientSession->getIoContext(), plainClientSession->getHost(), plainClientSession->getPort(), plainClientSession->getTarget());
+						(dynamic_cast<ETP_NS::FesapiHdfProxy*>(etpHdfProxy))->setSession(plainClientSession->getIoContext(), plainClientSession->getHost(), plainClientSession->getPort(), plainClientSession->getTarget());
 					}
 					repo->setDefaultHdfProxy(etpHdfProxy);
 				}
@@ -267,7 +267,7 @@ void askUser(ETP_NS::AbstractSession* session, COMMON_NS::DataObjectRepository* 
 
 				// Now send the XML part
 				Energistics::Etp::v12::Protocol::Store::PutDataObjects putDataObjects;
-				Energistics::Etp::v12::Datatypes::Object::DataObject dataObject = ETP_NS::EtpHelpers::buildEtpDataObjectFromEnergisticsObject(h1i1PointSetRep);
+				Energistics::Etp::v12::Datatypes::Object::DataObject dataObject = ETP_NS::FesapiHelpers::buildEtpDataObjectFromEnergisticsObject(h1i1PointSetRep);
 				putDataObjects.dataObjects["0"] = dataObject;
 
 				session->send(putDataObjects, 0, 0x02 | 0x10); // 0x10 requires Acknowledge from the store

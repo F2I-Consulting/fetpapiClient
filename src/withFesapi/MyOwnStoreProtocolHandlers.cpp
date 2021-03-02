@@ -20,9 +20,9 @@ under the License.
 
 #include <string>
 
-#include <common/AbstractObject.h>
-#include <etp/EtpHdfProxy.h>
-#include <etp/PlainClientSession.h>
+#include <fesapi/common/AbstractObject.h>
+#include <fetpapi/etp/fesapi/FesapiHdfProxy.h>
+#include <fetpapi/etp/PlainClientSession.h>
 
 void MyOwnStoreProtocolHandlers::on_GetDataObjectsResponse(const Energistics::Etp::v12::Protocol::Store::GetDataObjectsResponse & obj, int64_t correlationId)
 {
@@ -42,7 +42,7 @@ void MyOwnStoreProtocolHandlers::on_GetDataObjectsResponse(const Energistics::Et
 		// Associate session with the newly created hdf proxy.
 		// For now, also associate with all hdf proxies.
 		for (auto* hdfProxy : repo->getHdfProxySet()) {
-			auto* etpHdfProxy = dynamic_cast<ETP_NS::EtpHdfProxy*>(hdfProxy);
+			auto* etpHdfProxy = dynamic_cast<ETP_NS::FesapiHdfProxy*>(hdfProxy);
 			if (etpHdfProxy != nullptr) {
 				auto* plainClientSession = dynamic_cast<ETP_NS::PlainClientSession*>(session);
 				if (plainClientSession != nullptr) {

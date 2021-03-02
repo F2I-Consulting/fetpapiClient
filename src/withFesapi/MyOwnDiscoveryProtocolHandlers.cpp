@@ -20,8 +20,8 @@ under the License.
 
 #include <algorithm>
 
-#include <etp/AbstractSession.h>
-#include <common/AbstractObject.h>
+#include <fetpapi/etp/AbstractSession.h>
+#include <fesapi/common/AbstractObject.h>
 
 void MyOwnDiscoveryProtocolHandlers::on_GetResourcesResponse(const Energistics::Etp::v12::Protocol::Discovery::GetResourcesResponse & msg, int64_t correlationId)
 {

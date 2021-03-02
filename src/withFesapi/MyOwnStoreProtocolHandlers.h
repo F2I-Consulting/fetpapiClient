@@ -18,9 +18,9 @@ under the License.
 -----------------------------------------------------------------------*/
 #pragma once
 
-#include "etp/ProtocolHandlers/StoreHandlers.h"
+#include "fetpapi/etp/ProtocolHandlers/StoreHandlers.h"
 
-#include "common/DataObjectRepository.h"
+#include "fesapi/common/DataObjectRepository.h"
 
 class MyOwnStoreProtocolHandlers : public ETP_NS::StoreHandlers
 {

@@ -18,9 +18,9 @@ under the License.
 -----------------------------------------------------------------------*/
 #pragma once
 
-#include "etp/ProtocolHandlers/CoreHandlers.h"
+#include "fetpapi/etp/ProtocolHandlers/CoreHandlers.h"
 
-#include "common/AbstractObject.h"
+#include "fesapi/common/AbstractObject.h"
 
 class MyOwnCoreProtocolHandlers : public ETP_NS::CoreHandlers
 {

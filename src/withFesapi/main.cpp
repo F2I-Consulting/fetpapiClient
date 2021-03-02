@@ -16,18 +16,18 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -----------------------------------------------------------------------*/
-#include "etp/ClientSessionLaunchers.h"
-#include "etp/EtpHdfProxy.h"
-#include "etp/HttpClientSession.h"
+#include "fetpapi/etp/ClientSessionLaunchers.h"
+#include "fetpapi/etp/fesapi/FesapiHdfProxy.h"
+#include "fetpapi/etp/HttpClientSession.h"
 #ifdef WITH_ETP_SSL
-#include "etp/ssl/HttpsClientSession.h"
+#include "fetpapi/etp/ssl/HttpsClientSession.h"
 #endif
 
 #include "MyOwnCoreProtocolHandlers.h"
 #include "MyOwnDiscoveryProtocolHandlers.h"
 #include "MyOwnStoreProtocolHandlers.h"
-#include "etp/ProtocolHandlers/DataArrayHandlers.h"
-#include "etp/ProtocolHandlers/StoreNotificationHandlers.h"
+#include "fetpapi/etp/ProtocolHandlers/DataArrayHandlers.h"
+#include "fetpapi/etp/ProtocolHandlers/StoreNotificationHandlers.h"
 
 using namespace ETP_NS;
 
@@ -143,7 +143,7 @@ int main(int argc, char **argv)
 
 	
 	COMMON_NS::DataObjectRepository repo;
-	repo.setHdfProxyFactory(new EtpHdfProxyFactory());
+	repo.setHdfProxyFactory(new FesapiHdfProxyFactory());
 
 	bool successfulConnection = false;
 #ifdef WITH_ETP_SSL

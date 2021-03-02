@@ -18,9 +18,9 @@ under the License.
 -----------------------------------------------------------------------*/
 #pragma once
 
-#include "etp/ProtocolHandlers/StoreNotificationHandlers.h"
+#include "fetpapi/etp/ProtocolHandlers/StoreNotificationHandlers.h"
 
-#include "common/DataObjectRepository.h"
+#include "fesapi/common/DataObjectRepository.h"
 
 class MyOwnStoreNotificationProtocolHandlers : public ETP_NS::StoreNotificationHandlers
 {
