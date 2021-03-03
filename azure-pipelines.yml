@@ -597,7 +597,7 @@ jobs:
           cmakeArgs: --build . --target install
           
       - task: CMake@1
-        displayName: 'Configure fetpapiClientExample build'
+        displayName: 'Configure fetpapiClient build'
         inputs:
           cmakeArgs:
             -Wno-dev -Wno-deprecated
@@ -610,7 +610,7 @@ jobs:
             -B $(Build.BinariesDirectory)
 
       - task: CMake@1
-        displayName: "Build fetpapiClientExample"
+        displayName: "Build fetpapiClient"
         inputs:
           cmakeArgs: --build $(Build.BinariesDirectory)
           
@@ -704,7 +704,7 @@ jobs:
             -DWITH_FESAPI=TRUE
             -DHDF5_C_INCLUDE_DIR=/usr/include/hdf5/serial/
             -DFESAPI_INCLUDE_DIR=$(Agent.TempDirectory)/fesapi-build/install/include
-            -DFESAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fesapi-build/install/bin/FesapiCpp.2.1.0.0.so
+            -DFESAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fesapi-build/install/bin/libFesapiCpp.so
       - task: CMake@1
         displayName: "CMake build fetpapi"
         inputs:
@@ -717,7 +717,7 @@ jobs:
           cmakeArgs: --build . --target install
           
       - task: CMake@1
-        displayName: 'Configure fetpapiClientExample build'
+        displayName: 'Configure fetpapiClient build'
         inputs:
           cmakeArgs:
             -Wno-dev -Wno-deprecated
@@ -727,12 +727,12 @@ jobs:
             -DAVRO_LIBRARY_RELEASE=$(Agent.TempDirectory)/avro-cpp-1.10.1-install/lib/libavrocpp_s.a
             -DWITH_FESAPI=TRUE
             -DFESAPI_INCLUDE_DIR=$(Agent.TempDirectory)/fesapi-build/install/include
-            -DFESAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fesapi-build/install/bin/FesapiCpp.2.1.0.0.so
+            -DFESAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fesapi-build/install/bin/libFesapiCpp.so
             -DCMAKE_BUILD_TYPE=Release
             -S $(Build.SourcesDirectory)
             -B $(Build.BinariesDirectory)
 
       - task: CMake@1
-        displayName: "Build fetpapiClientExample"
+        displayName: "Build fetpapiClient"
         inputs:
           cmakeArgs: --build $(Build.BinariesDirectory)
