@@ -9,6 +9,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
+IF (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+	set (CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/install CACHE PATH "${LIBRARY_NAME} install prefix" FORCE)
+ENDIF (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+
+# required to define CMAKE_INSTALL_BINDIR, CMAKE_INSTALL_LIBDIR and CMAKE_INSTALL_INCLUDEDIR
+include(GNUInstallDirs) 
+
 add_executable (${APPLICATION_NAME} "")
 
 # ============================================================================
@@ -98,3 +105,12 @@ target_include_directories(${APPLICATION_NAME} PRIVATE ${AVRO_INCLUDE_DIR} ${Boo
 if (WIN32)
 	source_group ("src" FILES ${ALL_CPP_FILES} ${ALL_H_FILES})
 endif (WIN32)
+
+# ============================================================================
+# Install fetpapiClient
+# ============================================================================
+
+install (
+	TARGETS ${APPLICATION_NAME}
+	DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
