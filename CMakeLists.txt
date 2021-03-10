@@ -22,8 +22,8 @@ add_executable (${APPLICATION_NAME} "")
 # some useful variables
 # ============================================================================
 
-set (WITH_FESAPI OFF CACHE BOOL "Build Fetpapi with Fesapi support.")
-# SSL
+set (WITH_FESAPI OFF CACHE BOOL "Build Fetpapi_Client with Fesapi support.")
+set (WITH_ETP_SSL OFF CACHE BOOL "Build Fesapi with ETP SSL support.")
 
 # ============================================================================
 # checking for required dependencies
@@ -53,7 +53,13 @@ else (WIN32)
 	target_link_libraries (${APPLICATION_NAME} PRIVATE ${AVRO_LIBRARY_RELEASE})
 endif (WIN32)
 
-# SSL
+if (WITH_ETP_SSL)
+	target_compile_definitions(${APPLICATION_NAME} PRIVATE WITH_ETP_SSL)
+	if (NOT TARGET OpenSSL::SSL OR NOT TARGET OpenSSL::Crypto)
+		find_package(OpenSSL REQUIRED)
+	endif()
+	target_link_libraries(${APPLICATION_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+endif ()
 
 if (WITH_FESAPI)
 	set (FESAPI_INCLUDE_DIR FESAPI_INCLUDE_DIR-NOTFOUND CACHE PATH "Path to the directory which contains the fesapi header files")
@@ -100,6 +106,9 @@ endif (WITH_FESAPI)
 target_sources(${APPLICATION_NAME} PRIVATE ${ALL_CPP_FILES} ${ALL_H_FILES})
 
 target_include_directories(${APPLICATION_NAME} PRIVATE ${AVRO_INCLUDE_DIR} ${Boost_INCLUDE_DIR})
+if (WITH_ETP_SSL)
+	target_include_directories(${APPLICATION_NAME} PRIVATE ${OPENSSL_INCLUDE_DIR})
+endif ()
 
 # organizing sources and headers in the Visual Studio Project
 if (WIN32)
@@ -112,5 +121,5 @@ endif (WIN32)
 
 install (
 	TARGETS ${APPLICATION_NAME}
-	DESTINATION ${CMAKE_INSTALL_BINDIR}
+	DESTINATION ${CMAKE_INSTALL_PREFIX}
 )

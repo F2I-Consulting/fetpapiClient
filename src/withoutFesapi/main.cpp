@@ -145,7 +145,7 @@ int main(int argc, char **argv)
 	if (std::stoi(argv[2]) == 443) {
 		auto wssSession = ClientSessionLaunchers::createWssClientSession(argv[1], argv[2], argc < 4 ? "/" : argv[3], authorization,
 			additionalCertificates);
-		setProtocolHandlers(wssSession, &repo);
+		setProtocolHandlers(wssSession);
 		successfulConnection = wssSession->run();
 	}
 	else {
