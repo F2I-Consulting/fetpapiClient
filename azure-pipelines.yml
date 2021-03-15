@@ -50,10 +50,10 @@ jobs:
     
       # fetpapi
       - powershell: |
-          git clone --branch dev https://github.com/F2I-Consulting/fetpapi.git C:/fetpapi
-        displayName: 'Cloning fetpapi (dev)'
+          git clone https://github.com/F2I-Consulting/fetpapi.git C:/fetpapi
+        displayName: 'Cloning fetpapi'
       - task: CMake@1
-        displayName: 'CMake configure fetpapi (dev)'
+        displayName: 'CMake configure fetpapi'
         inputs:
           workingDirectory: C:/fetpapi-build
           cmakeArgs:
@@ -176,7 +176,7 @@ jobs:
       
       # fesapi 
       - powershell: |
-          git clone --branch dev https://github.com/mpoudret/fesapi.git C:/fesapi
+          git clone https://github.com/F2I-Consulting/fesapi.git C:/fesapi
         displayName: 'Cloning fesapi'
       - task: CMake@1
         displayName: 'CMake configure fesapi'
@@ -209,10 +209,10 @@ jobs:
     
       # fetpapi
       - powershell: |
-          git clone --branch dev https://github.com/F2I-Consulting/fetpapi.git C:/fetpapi
-        displayName: 'Cloning fetpapi (dev)'
+          git clone https://github.com/F2I-Consulting/fetpapi.git C:/fetpapi
+        displayName: 'Cloning fetpapi'
       - task: CMake@1
-        displayName: 'CMake configure fetpapi (dev)'
+        displayName: 'CMake configure fetpapi'
         inputs:
           workingDirectory: C:/fetpapi-build
           cmakeArgs:
@@ -314,10 +314,10 @@ jobs:
           
       # fetpapi
       - powershell: |
-          git clone --branch dev https://github.com/F2I-Consulting/fetpapi.git C:/fetpapi
-        displayName: 'Cloning fetpapi (dev)'
+          git clone https://github.com/F2I-Consulting/fetpapi.git C:/fetpapi
+        displayName: 'Cloning fetpapi'
       - task: CMake@1
-        displayName: 'CMake configure fetpapi (dev)'
+        displayName: 'CMake configure fetpapi'
         inputs:
           workingDirectory: C:/fetpapi-build
           cmakeArgs:
@@ -445,7 +445,7 @@ jobs:
           
       # fesapi
       - powershell: |
-          git clone --branch dev https://github.com/mpoudret/fesapi.git C:/fesapi
+          git clone https://github.com/F2I-Consulting/fesapi.git C:/fesapi
         displayName: 'Cloning fesapi'
       - task: CMake@1
         displayName: 'CMake configure fesapi'
@@ -480,10 +480,10 @@ jobs:
           
       # fetpapi
       - powershell: |
-          git clone --branch dev https://github.com/F2I-Consulting/fetpapi.git C:/fetpapi
-        displayName: 'Cloning fetpapi (dev)'
+          git clone https://github.com/F2I-Consulting/fetpapi.git C:/fetpapi
+        displayName: 'Cloning fetpapi'
       - task: CMake@1
-        displayName: 'CMake configure fetpapi (dev)'
+        displayName: 'CMake configure fetpapi'
         inputs:
           workingDirectory: C:/fetpapi-build
           cmakeArgs:
@@ -573,10 +573,10 @@ jobs:
 
       # fetpapi
       - script: |
-          git clone --branch dev https://github.com/F2I-Consulting/fetpapi.git $(Agent.TempDirectory)/fetpapi
-        displayName: 'Cloning fetpapi (dev)'
+          git clone https://github.com/F2I-Consulting/fetpapi.git $(Agent.TempDirectory)/fetpapi
+        displayName: 'Cloning fetpapi'
       - task: CMake@1
-        displayName: 'CMake configure fetpapi (dev)'
+        displayName: 'CMake configure fetpapi'
         inputs:
           workingDirectory: $(Agent.TempDirectory)/fetpapi-build
           cmakeArgs:
@@ -658,7 +658,7 @@ jobs:
 
       # fesapi
       - script: |
-          git clone --branch dev https://github.com/mpoudret/fesapi.git $(Agent.TempDirectory)/fesapi
+          git clone https://github.com/F2I-Consulting/fesapi.git $(Agent.TempDirectory)/fesapi
         displayName: 'Cloning fesapi'
       - task: CMake@1
         displayName: 'CMake configure fesapi'
@@ -689,10 +689,10 @@ jobs:
 
       # fetpapi
       - script: |
-          git clone --branch dev https://github.com/F2I-Consulting/fetpapi.git $(Agent.TempDirectory)/fetpapi
-        displayName: 'Cloning fetpapi (dev)'
+          git clone https://github.com/F2I-Consulting/fetpapi.git $(Agent.TempDirectory)/fetpapi
+        displayName: 'Cloning fetpapi'
       - task: CMake@1
-        displayName: 'CMake configure fetpapi (dev)'
+        displayName: 'CMake configure fetpapi'
         inputs:
           workingDirectory: $(Agent.TempDirectory)/fetpapi-build
           cmakeArgs:
