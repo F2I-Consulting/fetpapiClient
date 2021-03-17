@@ -1,3 +1,11 @@
+## Ignore the cmake generated files
+/cs/src/fetpapiClient.cs
+/cs/src/MyOwnClientCoreHandlers.cs
+/cs/src/MyOwnDiscoveryProtocolHandlers.cs
+/cs/src/MyOwnStoreProtocolHandlers.cs
+/cs/FetpapiClient.sln
+/cs/FetpapiClient.csproj
+
 ## Ignore Visual Studio Code files
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/Global/VisualStudioCode.gitignore

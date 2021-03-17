@@ -91,6 +91,21 @@ endif (WITH_FESAPI)
 target_link_libraries(${APPLICATION_NAME} PRIVATE Fetpapi::Fetpapi)
 
 # ============================================================================
+# SWIG clients
+# ============================================================================
+
+set (WITH_DOTNET_CLIENT OFF CACHE BOOL "Setup the .NET client.")
+
+if (WITH_DOTNET_CLIENT)
+	set (FETPAPI_CS_DIR FETPAPI_CS_DIR-NOTFOUND CACHE PATH "Path to the directory which contains the fetpapiCs.csproj file")
+	if (NOT IS_DIRECTORY ${FETPAPI_CS_DIR})
+		message(FATAL_ERROR "The Fetpapi cs dir (FETPAPI_CS_DIR variable) does not look to be a valid directory. Please modify it.")
+	endif ()
+
+	include(${CMAKE_SOURCE_DIR}/cs/CMakeLists.txt)
+endif (WITH_DOTNET_CLIENT)
+
+# ============================================================================
 # Getting source files
 # ============================================================================
 
