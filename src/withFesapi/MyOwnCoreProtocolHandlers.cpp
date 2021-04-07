@@ -254,7 +254,7 @@ void askUser(ETP_NS::AbstractSession* session, COMMON_NS::DataObjectRepository* 
 					auto* etpHdfProxy = repo->createHdfProxy("", "", "", "", COMMON_NS::DataObjectRepository::openingMode::READ_WRITE);
 					auto* plainClientSession = dynamic_cast<ETP_NS::PlainClientSession*>(session);
 					if (plainClientSession != nullptr) {
-						(dynamic_cast<ETP_NS::FesapiHdfProxy*>(etpHdfProxy))->setSession(plainClientSession->getIoContext(), plainClientSession->getHost(), plainClientSession->getPort(), plainClientSession->getTarget());
+						(dynamic_cast<ETP_NS::FesapiHdfProxy*>(etpHdfProxy))->setSession(plainClientSession);
 					}
 					repo->setDefaultHdfProxy(etpHdfProxy);
 				}

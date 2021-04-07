@@ -46,7 +46,7 @@ void MyOwnStoreProtocolHandlers::on_GetDataObjectsResponse(const Energistics::Et
 			if (etpHdfProxy != nullptr) {
 				auto* plainClientSession = dynamic_cast<ETP_NS::PlainClientSession*>(session);
 				if (plainClientSession != nullptr) {
-					etpHdfProxy->setSession(plainClientSession->getIoContext(), plainClientSession->getHost(), plainClientSession->getPort(), plainClientSession->getTarget());
+					etpHdfProxy->setSession(plainClientSession);
 				}
 			}
 		}

@@ -37,7 +37,7 @@ void setProtocolHandlers(std::shared_ptr<ETP_NS::AbstractSession> session) {
 int main(int argc, char **argv)
 {
 	if (argc < 3) {
-		std::cerr << "The command must be : etpClientExample ipAddress port [target]" << std::endl;
+		std::cerr << "The command must be : fetpapiClient ipAddress port [target]" << std::endl;
 		return 1;
 	}
 
