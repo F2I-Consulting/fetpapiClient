@@ -42,19 +42,19 @@ void printHelp()
 {
 	std::cout << "List of available commands :" << std::endl;
 	std::cout << "\tPing" << std::endl << "\t\tPing the server" << std::endl << std::endl;
-	std::cout << "\tList" << std::endl << "\t\tList the objects which have been got from ETP to the in-memory epc" << std::endl << std::endl;
+	std::cout << "\tList" << std::endl << "\t\tList the objects which have been got from ETP to the in-memory Dataobject repository" << std::endl << std::endl;
 	std::cout << "\tPutXmldAndHdfAtOnce" << std::endl << "\t\tPut a dummy point set representation to the store sending XML and HDF5 points at once." << std::endl << std::endl;
 	std::cout << "\tGetResources URI scope(default self) depth(default 1) countObjects(true or false, default is true) getObject(true or false, default is false) dataTypeFilter,dataTypeFilter,...(default noFilter)" << std::endl << std::endl;
-	std::cout << "\tGetDataObjects dataObjectURI,dataObjectURI,..." << std::endl << "\t\tGet the objects from an ETP store and store them into the in memory epc (only create partial TARGET relationships, not any SOURCE relationships)" << std::endl << std::endl;
+	std::cout << "\tGetDataObjects dataObjectURI,dataObjectURI,..." << std::endl << "\t\tGet the objects from an ETP store and store them into the in memory Dataobject repository (only create partial TARGET relationships, not any SOURCE relationships)" << std::endl << std::endl;
 	std::cout << "\tGetXYZPoints URI" << std::endl << "\t\tGet the XYZ points of a rep from store and print some of them." << std::endl << std::endl;
 	std::cout << "\tPutDataObject UUID" << std::endl << "\t\tPut the XML part of a dataobject which is on the client side (use \"Load\" command to laod some dataobjects on client side) to the store" << std::endl << std::endl;
-	std::cout << "\tGetSourceObjects dataObjectURI" << std::endl << "\t\tGet the source objects of another object from an ETP store and put it into the in memory epc" << std::endl << std::endl;
-	std::cout << "\tGetTargetObjects dataObjectURI" << std::endl << "\t\tGet the target objects of another object from an ETP store and put it into the in memory epc" << std::endl << std::endl;
-	std::cout << "\tGetResourceObjects dataObjectURI" << std::endl << "\t\tGet the object, its source and its target objects from an ETP store and put it into the in memory epc" << std::endl << std::endl;
+	std::cout << "\tGetSourceObjects dataObjectURI" << std::endl << "\t\tGet the source objects of another object from an ETP store and put it into the in memory Dataobject repository" << std::endl << std::endl;
+	std::cout << "\tGetTargetObjects dataObjectURI" << std::endl << "\t\tGet the target objects of another object from an ETP store and put it into the in memory Dataobject repository" << std::endl << std::endl;
+	std::cout << "\tGetResourceObjects dataObjectURI" << std::endl << "\t\tGet the object, its source and its target objects from an ETP store and put it into the in memory Dataobject repository" << std::endl << std::endl;
 	std::cout << "\tGetDataArray epcExternalPartURI datasetPathInEpcExternalPart" << std::endl << "\t\tGet the numerical values from a dataset included in an EpcExternalPart over ETP." << std::endl << std::endl;
 	std::cout << "\tPutDataArray epcExternalPartURI datasetPathInEpcExternalPart" << std::endl << "\t\tPut a dummy {0,1,2,3,4,5,6,7,8,9} integer array in a particular store epcExternalPartURI at a particular dataset path" << std::endl << std::endl;
 	std::cout << "\tSubscribeNotif URI scope(default self) depth(default 1) receiveXML(true or false, default is true) startTime(default is now) dataTypeFilter,dataTypeFilter,...(default noFilter)" << std::endl << "\t\tSubscribe to notifications." << std::endl << std::endl;
-	std::cout << "\tLoad epcDocument" << std::endl << "\t\tLoad an EPC document into the DataObjectRepository." << std::endl << std::endl;
+	std::cout << "\tLoad epcDocument" << std::endl << "\t\tLoad an EPC document into the Dataobject repository." << std::endl << std::endl;
 	std::cout << "\tquit" << std::endl << "\t\tQuit the session." << std::endl << std::endl;
 }
 
@@ -252,10 +252,6 @@ void askUser(ETP_NS::AbstractSession* session, COMMON_NS::DataObjectRepository* 
 				auto* crs = repo->createPartial<RESQML2_0_1_NS::LocalDepth3dCrs>("", "");
 				if (repo->getDefaultHdfProxy() == nullptr) {
 					auto* etpHdfProxy = repo->createHdfProxy("", "", "", "", COMMON_NS::DataObjectRepository::openingMode::READ_WRITE);
-					auto* plainClientSession = dynamic_cast<ETP_NS::PlainClientSession*>(session);
-					if (plainClientSession != nullptr) {
-						(dynamic_cast<ETP_NS::FesapiHdfProxy*>(etpHdfProxy))->setSession(plainClientSession);
-					}
 					repo->setDefaultHdfProxy(etpHdfProxy);
 				}
 

@@ -35,20 +35,6 @@ void MyOwnStoreProtocolHandlers::on_GetDataObjectsResponse(const Energistics::Et
 		std::cout << "xml : " << graphResource.second.data << std::endl;
 		std::cout << "*************************************************" << std::endl;
 
-		COMMON_NS::AbstractObject* importedObj = repo->addOrReplaceGsoapProxy(graphResource.second.data, graphResource.second.resource.dataObjectType);
-
-		importedObj->loadTargetRelationships();
-
-		// Associate session with the newly created hdf proxy.
-		// For now, also associate with all hdf proxies.
-		for (auto* hdfProxy : repo->getHdfProxySet()) {
-			auto* etpHdfProxy = dynamic_cast<ETP_NS::FesapiHdfProxy*>(hdfProxy);
-			if (etpHdfProxy != nullptr) {
-				auto* plainClientSession = dynamic_cast<ETP_NS::PlainClientSession*>(session);
-				if (plainClientSession != nullptr) {
-					etpHdfProxy->setSession(plainClientSession);
-				}
-			}
-		}
+		repo->addOrReplaceGsoapProxy(graphResource.second.data, graphResource.second.resource.dataObjectType);
 	}
 }

@@ -18,12 +18,12 @@ under the License.
 -----------------------------------------------------------------------*/
 #include "fetpapi/etp/ClientSessionLaunchers.h"
 #include "fetpapi/etp/fesapi/FesapiHdfProxy.h"
+#include "fetpapi/etp/ProtocolHandlers/DataArrayHandlers.h"
+#include "fetpapi/etp/ProtocolHandlers/StoreNotificationHandlers.h"
 
 #include "MyOwnCoreProtocolHandlers.h"
 #include "MyOwnDiscoveryProtocolHandlers.h"
 #include "MyOwnStoreProtocolHandlers.h"
-#include "fetpapi/etp/ProtocolHandlers/DataArrayHandlers.h"
-#include "fetpapi/etp/ProtocolHandlers/StoreNotificationHandlers.h"
 
 using namespace ETP_NS;
 
@@ -50,9 +50,6 @@ int main(int argc, char **argv)
 	std::cout << "Give your authorization to pass to the server (or hit enter if no authorization)" << std::endl;
 	std::string authorization;
 	std::getline(std::cin, authorization);
-	
-	COMMON_NS::DataObjectRepository repo;
-	repo.setHdfProxyFactory(new FesapiHdfProxyFactory());
 
 	bool successfulConnection = false;
 #ifdef WITH_ETP_SSL
@@ -102,13 +99,21 @@ int main(int argc, char **argv)
 			"-----END CERTIFICATE-----\n";
 		auto wssSession = ClientSessionLaunchers::createWssClientSession(argv[1], argv[2], argc < 4 ? "/" : argv[3], authorization,
 			additionalCertificates);
+
+		COMMON_NS::DataObjectRepository repo;
+		repo.setHdfProxyFactory(new FesapiHdfProxyFactory(wssSession.get()));
 		setProtocolHandlers(wssSession, &repo);
+
 		successfulConnection = wssSession->run();
 	}
 	else {
 #endif
 		auto session = ClientSessionLaunchers::createWsClientSession(argv[1], argv[2], argc < 4 ? "/" : argv[3], authorization);
+
+		COMMON_NS::DataObjectRepository repo;
+		repo.setHdfProxyFactory(new FesapiHdfProxyFactory(session.get()));
 		setProtocolHandlers(session, &repo);
+
 		successfulConnection = session->run();
 #ifdef WITH_ETP_SSL
 	}

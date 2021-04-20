@@ -4,6 +4,13 @@ project(Fetpapi_Client)
 
 set (APPLICATION_NAME fetpapiClient)
 
+# version mechanism
+set (FetpapiClient_VERSION_MAJOR 0)
+set (FetpapiClient_VERSION_MINOR 1)
+set (FetpapiClient_VERSION_PATCH 0)
+set (FetpapiClient_VERSION_TWEAK 0)
+set (FetpapiClient_VERSION ${Fetpapi_VERSION_MAJOR}.${FetpapiClient_VERSION_MINOR}.${FetpapiClient_VERSION_PATCH}.${FetpapiClient_VERSION_TWEAK})
+
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -29,7 +36,7 @@ set (WITH_ETP_SSL OFF CACHE BOOL "Build Fesapi with ETP SSL support.")
 # checking for required dependencies
 # ============================================================================
 
-find_package(Fetpapi REQUIRED)
+#find_package(Fetpapi REQUIRED)
 
 if (WIN32)
 	target_link_libraries (${APPLICATION_NAME} PRIVATE bcrypt.lib)
@@ -61,6 +68,33 @@ if (WITH_ETP_SSL)
 	target_link_libraries(${APPLICATION_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 endif ()
 
+#FETPAPI
+set (FETPAPI_INCLUDE_DIR FETPAPI_INCLUDE_DIR-NOTFOUND CACHE PATH "Path to the directory which contains the FETPAPI header files")
+if (NOT IS_DIRECTORY ${FETPAPI_INCLUDE_DIR})
+	message(WARNING "The FETPAPI include dir (FETPAPI_INCLUDE_DIR variable) does not look to be a valid directory. Please modify it.")
+endif ()
+set (FETPAPI_LIBRARY_RELEASE FETPAPI_LIBRARY_RELEASE-NOTFOUND CACHE FILEPATH "Path to the file which contains the FETPAPI library release")
+if (NOT EXISTS ${FETPAPI_LIBRARY_RELEASE})
+	message(WARNING "The FETPAPI library (FETPAPI_LIBRARY_RELEASE variable) does not look to be a valid file. Please modify it.")
+endif ()
+set (FETPAPI_LIBRARY_DEBUG FETPAPI_LIBRARY_DEBUG-NOTFOUND CACHE FILEPATH "Path to the file which contains the FETPAPI library DEBUG")
+if (NOT EXISTS ${FETPAPI_LIBRARY_DEBUG})
+	message(WARNING "The FETPAPI library (FETPAPI_LIBRARY_DEBUG variable) does not look to be a valid file. Please modify it.")
+endif ()
+if (WIN32)
+	if (EXISTS ${FETPAPI_LIBRARY_RELEASE} AND EXISTS ${FETPAPI_LIBRARY_DEBUG})
+		target_link_libraries (${APPLICATION_NAME} PRIVATE optimized ${FETPAPI_LIBRARY_RELEASE} debug ${FETPAPI_LIBRARY_DEBUG})
+	elseif (EXISTS ${FETPAPI_LIBRARY_RELEASE})
+		target_link_libraries (${APPLICATION_NAME} PRIVATE ${FETPAPI_LIBRARY_RELEASE})
+	elseif (EXISTS ${FETPAPI_LIBRARY_DEBUG})
+		target_link_libraries (${APPLICATION_NAME} PRIVATE ${FETPAPI_LIBRARY_DEBUG})
+	endif ()
+else (WIN32)
+	target_link_libraries (${APPLICATION_NAME} PRIVATE ${FESAPI_LIBRARY_RELEASE})
+endif (WIN32)
+
+#target_link_libraries(${APPLICATION_NAME} PRIVATE Fetpapi::Fetpapi)
+
 if (WITH_FESAPI)
 	set (FESAPI_INCLUDE_DIR FESAPI_INCLUDE_DIR-NOTFOUND CACHE PATH "Path to the directory which contains the fesapi header files")
 	if (NOT IS_DIRECTORY ${FESAPI_INCLUDE_DIR})
@@ -88,8 +122,6 @@ if (WITH_FESAPI)
 	endif (WIN32)
 endif (WITH_FESAPI)
 
-target_link_libraries(${APPLICATION_NAME} PRIVATE Fetpapi::Fetpapi)
-
 # ============================================================================
 # SWIG clients
 # ============================================================================
@@ -108,6 +140,8 @@ endif (WITH_DOTNET_CLIENT)
 # ============================================================================
 # Getting source files
 # ============================================================================
+
+target_include_directories(${APPLICATION_NAME} PRIVATE ${FETPAPI_INCLUDE_DIR})
 
 if (WITH_FESAPI)
 	file (GLOB ALL_CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/withFesapi/*.cpp)
