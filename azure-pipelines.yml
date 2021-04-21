@@ -604,6 +604,7 @@ jobs:
             -Wno-dev -Wno-deprecated
             -DAVRO_INCLUDE_DIR=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/include
             -DAVRO_LIBRARY_RELEASE=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/lib/libavrocpp_s.a
+            -DCMAKE_INSTALL_PREFIX=$(Agent.TempDirectory)/fetpapi-install
       - task: CMake@1
         displayName: "CMake build fetpapi"
         inputs:
@@ -620,8 +621,8 @@ jobs:
         inputs:
           cmakeArgs:
             -Wno-dev -Wno-deprecated
-            -DFETPAPI_INCLUDE_DIR=$(Agent.TempDirectory)/fetpapi-build/install/include
-            -DFETPAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fetpapi-build/install/lib/libFetpapi.so
+            -DFETPAPI_INCLUDE_DIR=$(Agent.TempDirectory)/fetpapi-install/include
+            -DFETPAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fetpapi-install/lib/libFetpapi.so
             -DAVRO_INCLUDE_DIR=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/include
             -DAVRO_LIBRARY_RELEASE=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/lib/libavrocpp_s.a
             -DCMAKE_BUILD_TYPE=Release
@@ -692,6 +693,7 @@ jobs:
             -DZLIB_INCLUDE_DIR=/usr/include
             -DZLIB_LIBRARY_RELEASE=/usr/lib/x86_64-linux-gnu/libz.so
             -DCMAKE_BUILD_TYPE=Release
+            -DCMAKE_INSTALL_PREFIX=$(Agent.TempDirectory)/fesapi-install
       - task: CMake@1
         displayName: "CMake build fesapi"
         inputs:
@@ -720,6 +722,7 @@ jobs:
             -DHDF5_C_INCLUDE_DIR=/usr/include/hdf5/serial/
             -DFESAPI_INCLUDE_DIR=$(Agent.TempDirectory)/fesapi-build/install/include
             -DFESAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fesapi-build/install/lib/libFesapiCpp.so
+            -DCMAKE_INSTALL_PREFIX=$(Agent.TempDirectory)/fetpapi-install
       - task: CMake@1
         displayName: "CMake build fetpapi"
         inputs:
@@ -736,13 +739,13 @@ jobs:
         inputs:
           cmakeArgs:
             -Wno-dev -Wno-deprecated
-            -DFETPAPI_INCLUDE_DIR=$(Agent.TempDirectory)/fetpapi-build/install/install
-            -DFETPAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fetpapi-build/install/lib/libFetpapi.so
+            -DFETPAPI_INCLUDE_DIR=$(Agent.TempDirectory)/fetpapi-install/include
+            -DFETPAPI_LIBRARY_RELEASE=$$(Agent.TempDirectory)/fetpapi-install/lib/libFetpapi.so
             -DAVRO_INCLUDE_DIR=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/include
             -DAVRO_LIBRARY_RELEASE=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/lib/libavrocpp_s.a
             -DWITH_FESAPI=TRUE
-            -DFESAPI_INCLUDE_DIR=$(Agent.TempDirectory)/fesapi-build/install/include
-            -DFESAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fesapi-build/install/lib/libFesapiCpp.so
+            -DFESAPI_INCLUDE_DIR=$(Agent.TempDirectory)/fesapi-installl/include
+            -DFESAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fesapi-install/lib/libFesapiCpp.so
             -DCMAKE_BUILD_TYPE=Release
             -S $(Build.SourcesDirectory)
             -B $(Build.BinariesDirectory)
