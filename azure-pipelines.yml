@@ -21,7 +21,7 @@ jobs:
       - powershell: |
           $Url = "https://sourceforge.net/projects/boost/files/boost-binaries/1.75.0/boost_1_75_0-msvc-14.1-64.exe"
           (New-Object System.Net.WebClient).DownloadFile($Url, "$env:TEMP\boost.exe")
-          Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\hostedtoolcache\windows\Boost\1.75.0\x86_64"  
+          Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=$(Agent.TempDirectory)\Boost\1.75.0\x86_64"  
         displayName: 'Install Boost 1.75'
     
       # AVRO
@@ -43,7 +43,7 @@ jobs:
             $(Build.SourcesDirectory)/avro-cpp-1.10.2
             $(Generator)
             -Wno-dev -Wno-deprecated
-            -DBoost_INCLUDE_DIR=C:/hostedtoolcache/windows/Boost/1.75.0/x86_64
+            -DBoost_INCLUDE_DIR=$(Agent.TempDirectory)/Boost/1.75.0/x86_64
             -DCMAKE_INSTALL_PREFIX=$(Agent.TempDirectory)/avro-cpp-1.10.2-install
       - task: CMake@1
         displayName: "CMake build AVRO --config $(BuildType)"
@@ -58,29 +58,29 @@ jobs:
     
       # fetpapi
       - powershell: |
-          git clone https://github.com/F2I-Consulting/fetpapi.git C:/fetpapi
+          git clone https://github.com/F2I-Consulting/fetpapi.git $(Agent.TempDirectory)/fetpapi
         displayName: 'Cloning fetpapi'
       - task: CMake@1
         displayName: 'CMake configure fetpapi'
         inputs:
-          workingDirectory: C:/fetpapi-build
+          workingDirectory: $(Agent.TempDirectory)/fetpapi-build
           cmakeArgs:
             ../fetpapi
             $(Generator)
             -Wno-dev -Wno-deprecated
-            -DBoost_INCLUDE_DIR=C:/hostedtoolcache/windows/Boost/1.75.0/x86_64
+            -DBoost_INCLUDE_DIR=$(Agent.TempDirectory)/Boost/1.75.0/x86_64
             -DAVRO_INCLUDE_DIR=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/include
             -DAVRO_LIBRARY_RELEASE=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/lib/avrocpp_s.lib
-            -DCMAKE_INSTALL_PREFIX=C:/fetpapi-install
+            -DCMAKE_INSTALL_PREFIX=$(Agent.TempDirectory)/fetpapi-install
       - task: CMake@1
         displayName: "CMake build fetpapi --config $(BuildType)"
         inputs:
-          workingDirectory: C:/fetpapi-build
+          workingDirectory: $(Agent.TempDirectory)/fetpapi-build
           cmakeArgs: --build . --config $(BuildType) -- /verbosity:minimal
       - task: CMake@1
         displayName: "CMake Install fetpapi --config $(BuildType)"
         inputs:
-          workingDirectory: C:/fetpapi-build
+          workingDirectory: $(Agent.TempDirectory)/fetpapi-build
           cmakeArgs: --build . --config $(BuildType) --target INSTALL -- /verbosity:minimal
               
       - task: CMake@1
@@ -90,8 +90,9 @@ jobs:
             ..
             $(Generator)
             -Wno-dev -Wno-deprecated
-            -DFetpapi_DIR=C:/fetpapi-install/lib/cmake/Fetpapi
-            -DBoost_INCLUDE_DIR=C:/hostedtoolcache/windows/Boost/1.75.0/x86_64
+            -DFETPAPI_INCLUDE_DIR=$(Agent.TempDirectory)/fetpapi-install/include
+            -DFETPAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fetpapi-install/lib/Fetpapi.0.1.0.0.lib
+            -DBoost_INCLUDE_DIR=$(Agent.TempDirectory)/Boost/1.75.0/x86_64
             -DAVRO_INCLUDE_DIR=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/include
             -DAVRO_LIBRARY_RELEASE=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/lib/avrocpp_s.lib
 
@@ -117,7 +118,7 @@ jobs:
       - powershell: |
           $Url = "https://sourceforge.net/projects/boost/files/boost-binaries/1.75.0/boost_1_75_0-msvc-14.1-64.exe"
           (New-Object System.Net.WebClient).DownloadFile($Url, "$env:TEMP\boost.exe")
-          Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\hostedtoolcache\windows\Boost\1.75.0\x86_64"  
+          Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=$(Agent.TempDirectory)\Boost\1.75.0\x86_64"  
         displayName: 'Install Boost 1.75'
     
       # AVRO
@@ -139,7 +140,7 @@ jobs:
             $(Build.SourcesDirectory)/avro-cpp-1.10.2
             $(Generator)
             -Wno-dev -Wno-deprecated
-            -DBoost_INCLUDE_DIR=C:/hostedtoolcache/windows/Boost/1.75.0/x86_64
+            -DBoost_INCLUDE_DIR=$(Agent.TempDirectory)/Boost/1.75.0/x86_64
             -DCMAKE_INSTALL_PREFIX=$(Agent.TempDirectory)/avro-cpp-1.10.2-install
       - task: CMake@1
         displayName: "CMake build AVRO --config $(BuildType)"
@@ -154,99 +155,99 @@ jobs:
         
       # HDF5
       - powershell: |
-          Invoke-WebRequest https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.6/bin/hdf5-1.10.6-Std-win10_64-vs15.zip -OutFile C:\hdf5-1.10.6-Std-win10_64-vs15.zip
-          Expand-Archive C:\hdf5-1.10.6-Std-win10_64-vs15.zip -DestinationPath C:\
-          msiexec.exe /i "C:\hdf\HDF5-1.10.6-win64.msi" /qn INSTALL_ROOT=C:\hdf5-1.10.6-win64-vs2017
+          Invoke-WebRequest https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.6/bin/hdf5-1.10.6-Std-win10_64-vs15.zip -OutFile $(Agent.TempDirectory)\hdf5-1.10.6-Std-win10_64-vs15.zip
+          Expand-Archive $(Agent.TempDirectory)\hdf5-1.10.6-Std-win10_64-vs15.zip -DestinationPath $(Agent.TempDirectory)\
+          msiexec.exe /i "$(Agent.TempDirectory)\hdf\HDF5-1.10.6-win64.msi" /qn INSTALL_ROOT=$(Agent.TempDirectory)\hdf5-1.10.6-win64-vs2017
         displayName: 'Install HDF5 1.10.6'    
       
       # Minizip
       - powershell: |
-          git clone https://github.com/F2I-Consulting/Minizip.git C:/Minizip
+          git clone https://github.com/F2I-Consulting/Minizip.git $(Agent.TempDirectory)/Minizip
         displayName: 'Cloning Minizip'
       - task: CMake@1
         displayName: 'CMake configure Minizip'
         inputs:
-          workingDirectory: C:/Minizip-build
+          workingDirectory: $(Agent.TempDirectory)/Minizip-build
           cmakeArgs:
             ../Minizip
             $(Generator)
             -Wno-dev -Wno-deprecated
-            -DZLIB_INCLUDE_DIR=C:/hdf5-1.10.6-win64-vs2017/include
-            -DZLIB_LIBRARY_RELEASE=C:/hdf5-1.10.6-win64-vs2017/lib/hdf5.lib
-            -DCMAKE_INSTALL_PREFIX=C:/Minizip-install
+            -DZLIB_INCLUDE_DIR=$(Agent.TempDirectory)/hdf5-1.10.6-win64-vs2017/include
+            -DZLIB_LIBRARY_RELEASE=$(Agent.TempDirectory)/hdf5-1.10.6-win64-vs2017/lib/hdf5.lib
+            -DCMAKE_INSTALL_PREFIX=$(Agent.TempDirectory)/Minizip-install
       - task: CMake@1
         displayName: "CMake build Minizip --config $(BuildType)"
         inputs:
-          workingDirectory: C:/Minizip-build
+          workingDirectory: $(Agent.TempDirectory)/Minizip-build
           cmakeArgs: --build . --config $(BuildType) -- /verbosity:minimal
       - task: CMake@1
         displayName: "CMake Install Minizip --config $(BuildType)"
         inputs:
-          workingDirectory: C:/Minizip-build
+          workingDirectory: $(Agent.TempDirectory)/Minizip-build
           cmakeArgs: --build . --config $(BuildType) --target INSTALL -- /verbosity:minimal
       
       # fesapi 
       - powershell: |
-          git clone https://github.com/F2I-Consulting/fesapi.git C:/fesapi
+          git clone https://github.com/F2I-Consulting/fesapi.git $(Agent.TempDirectory)/fesapi
         displayName: 'Cloning fesapi'
       - task: CMake@1
         displayName: 'CMake configure fesapi'
         inputs:
-          workingDirectory: C:/fesapi-build
+          workingDirectory: $(Agent.TempDirectory)/fesapi-build
           cmakeArgs:
             ../fesapi
             $(Generator)
             -Wno-dev -Wno-deprecated
             -DHDF5_BUILT_AS_DYNAMIC_LIB=TRUE
-            -DHDF5_C_INCLUDE_DIR=C:/hdf5-1.10.6-win64-vs2017/include
-            -DHDF5_C_LIBRARY_RELEASE=C:/hdf5-1.10.6-win64-vs2017/lib/hdf5.lib
-            -DMINIZIP_INCLUDE_DIR=C:/Minizip-install/include
-            -DMINIZIP_LIBRARY_RELEASE=C:/Minizip-install/lib/minizip.lib
-            -DZLIB_INCLUDE_DIR=C:/hdf5-1.10.6-win64-vs2017/include
-            -DZLIB_LIBRARY_RELEASE=C:/hdf5-1.10.6-win64-vs2017/lib/zlib.lib
-            -DSZIP_LIBRARY_RELEASE=C:/hdf5-1.10.6-win64-vs2017/lib/szip.lib
-            -DBoost_INCLUDE_DIR=C:/hostedtoolcache/windows/Boost/1.75.0/x86_64
-            -DCMAKE_INSTALL_PREFIX=C:/fesapi-install
+            -DHDF5_C_INCLUDE_DIR=$(Agent.TempDirectory)/hdf5-1.10.6-win64-vs2017/include
+            -DHDF5_C_LIBRARY_RELEASE=$(Agent.TempDirectory)/hdf5-1.10.6-win64-vs2017/lib/hdf5.lib
+            -DMINIZIP_INCLUDE_DIR=$(Agent.TempDirectory)/Minizip-install/include
+            -DMINIZIP_LIBRARY_RELEASE=$(Agent.TempDirectory)/Minizip-install/lib/minizip.lib
+            -DZLIB_INCLUDE_DIR=$(Agent.TempDirectory)/hdf5-1.10.6-win64-vs2017/include
+            -DZLIB_LIBRARY_RELEASE=$(Agent.TempDirectory)/hdf5-1.10.6-win64-vs2017/lib/zlib.lib
+            -DSZIP_LIBRARY_RELEASE=$(Agent.TempDirectory)/hdf5-1.10.6-win64-vs2017/lib/szip.lib
+            -DBoost_INCLUDE_DIR=$(Agent.TempDirectory)/Boost/1.75.0/x86_64
+            -DCMAKE_INSTALL_PREFIX=$(Agent.TempDirectory)/fesapi-install
       - task: CMake@1
         displayName: "CMake build fesapi --config $(BuildType)"
         inputs:
-          workingDirectory: C:/fesapi-build
+          workingDirectory: $(Agent.TempDirectory)/fesapi-build
           cmakeArgs: --build . --config $(BuildType) -- /verbosity:minimal
       - task: CMake@1
         displayName: "CMake Install fesapi --config $(BuildType)"
         inputs:
-          workingDirectory: C:/fesapi-build
+          workingDirectory: $(Agent.TempDirectory)/fesapi-build
           cmakeArgs: --build . --config $(BuildType) --target INSTALL -- /verbosity:minimal
     
       # fetpapi
       - powershell: |
-          git clone https://github.com/F2I-Consulting/fetpapi.git C:/fetpapi
+          git clone https://github.com/F2I-Consulting/fetpapi.git $(Agent.TempDirectory)/fetpapi
         displayName: 'Cloning fetpapi'
       - task: CMake@1
         displayName: 'CMake configure fetpapi'
         inputs:
-          workingDirectory: C:/fetpapi-build
+          workingDirectory: $(Agent.TempDirectory)/fetpapi-build
           cmakeArgs:
             ../fetpapi
             $(Generator)
             -Wno-dev -Wno-deprecated
-            -DBoost_INCLUDE_DIR=C:/hostedtoolcache/windows/Boost/1.75.0/x86_64
+            -DBoost_INCLUDE_DIR=$(Agent.TempDirectory)/Boost/1.75.0/x86_64
             -DAVRO_INCLUDE_DIR=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/include
             -DAVRO_LIBRARY_RELEASE=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/lib/avrocpp_s.lib
             -DWITH_FESAPI=TRUE
-            -DHDF5_C_INCLUDE_DIR=C:/hdf5-1.10.6-win64-vs2017/include
-            -DFESAPI_INCLUDE_DIR=C:/fesapi-install/include
-            -DFESAPI_LIBRARY_RELEASE=C:/fesapi-install/lib/FesapiCpp.2.1.0.0.lib
-            -DCMAKE_INSTALL_PREFIX=C:/fetpapi-install
+            -DHDF5_C_INCLUDE_DIR=$(Agent.TempDirectory)/hdf5-1.10.6-win64-vs2017/include
+            -DFESAPI_INCLUDE_DIR=$(Agent.TempDirectory)/fesapi-install/include
+            -DFESAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fesapi-install/lib/FesapiCpp.2.1.0.0.lib
+            -DCMAKE_INSTALL_PREFIX=$(Agent.TempDirectory)/fetpapi-install
       - task: CMake@1
         displayName: "CMake build fetpapi --config $(BuildType)"
         inputs:
-          workingDirectory: C:/fetpapi-build
+          workingDirectory: $(Agent.TempDirectory)/fetpapi-build
           cmakeArgs: --build . --config $(BuildType) -- /verbosity:minimal
       - task: CMake@1
         displayName: "CMake Install fetpapi --config $(BuildType)"
         inputs:
-          workingDirectory: C:/fetpapi-build
+          workingDirectory: $(Agent.TempDirectory)/fetpapi-build
           cmakeArgs: --build . --config $(BuildType) --target INSTALL -- /verbosity:minimal
               
       - task: CMake@1
@@ -256,13 +257,14 @@ jobs:
             ..
             $(Generator)
             -Wno-dev -Wno-deprecated
-            -DFetpapi_DIR=C:/fetpapi-install/lib/cmake/Fetpapi
-            -DBoost_INCLUDE_DIR=C:/hostedtoolcache/windows/Boost/1.75.0/x86_64
+            -DFETPAPI_INCLUDE_DIR=$(Agent.TempDirectory)/fetpapi-install/include
+            -DFETPAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fetpapi-install/lib/Fetpapi.0.1.0.0.lib
+            -DBoost_INCLUDE_DIR=$(Agent.TempDirectory)/Boost/1.75.0/x86_64
             -DAVRO_INCLUDE_DIR=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/include
             -DAVRO_LIBRARY_RELEASE=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/lib/avrocpp_s.lib
             -DWITH_FESAPI=TRUE
-            -DFESAPI_INCLUDE_DIR=C:/fesapi-install/include
-            -DFESAPI_LIBRARY_RELEASE=C:/fesapi-install/lib/FesapiCpp.2.1.0.0.lib
+            -DFESAPI_INCLUDE_DIR=$(Agent.TempDirectory)/fesapi-install/include
+            -DFESAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fesapi-install/lib/FesapiCpp.2.1.0.0.lib
 
       - task: CMake@1
         displayName: "Build --config $(BuildType)"
@@ -291,7 +293,7 @@ jobs:
       - powershell: |
           $Url = "https://sourceforge.net/projects/boost/files/boost-binaries/1.75.0/boost_1_75_0-msvc-14.2-64.exe"
           (New-Object System.Net.WebClient).DownloadFile($Url, "$env:TEMP\boost.exe")
-          Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\hostedtoolcache\windows\Boost\1.75.0\x86_64"  
+          Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=$(Agent.TempDirectory)\Boost\1.75.0\x86_64"  
         displayName: 'Install Boost 1.75'
     
       # AVRO
@@ -313,7 +315,7 @@ jobs:
             $(Build.SourcesDirectory)/avro-cpp-1.10.2
             $(Generator)
             -Wno-dev -Wno-deprecated
-            -DBoost_INCLUDE_DIR=C:/hostedtoolcache/windows/Boost/1.75.0/x86_64
+            -DBoost_INCLUDE_DIR=$(Agent.TempDirectory)/Boost/1.75.0/x86_64
             -DCMAKE_INSTALL_PREFIX=$(Agent.TempDirectory)/avro-cpp-1.10.2-install
       - task: CMake@1
         displayName: "CMake build AVRO --config $(BuildType)"
@@ -328,29 +330,29 @@ jobs:
           
       # fetpapi
       - powershell: |
-          git clone https://github.com/F2I-Consulting/fetpapi.git C:/fetpapi
+          git clone https://github.com/F2I-Consulting/fetpapi.git $(Agent.TempDirectory)/fetpapi
         displayName: 'Cloning fetpapi'
       - task: CMake@1
         displayName: 'CMake configure fetpapi'
         inputs:
-          workingDirectory: C:/fetpapi-build
+          workingDirectory: $(Agent.TempDirectory)/fetpapi-build
           cmakeArgs:
             ../fetpapi
             $(Generator)
             -Wno-dev -Wno-deprecated
-            -DBoost_INCLUDE_DIR=C:/hostedtoolcache/windows/Boost/1.75.0/x86_64
+            -DBoost_INCLUDE_DIR=$(Agent.TempDirectory)/Boost/1.75.0/x86_64
             -DAVRO_INCLUDE_DIR=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/include
             -DAVRO_LIBRARY_RELEASE=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/lib/avrocpp_s.lib
-            -DCMAKE_INSTALL_PREFIX=C:/fetpapi-install
+            -DCMAKE_INSTALL_PREFIX=$(Agent.TempDirectory)/fetpapi-install
       - task: CMake@1
         displayName: "CMake build fetpapi --config $(BuildType)"
         inputs:
-          workingDirectory: C:/fetpapi-build
+          workingDirectory: $(Agent.TempDirectory)/fetpapi-build
           cmakeArgs: --build . --config $(BuildType) -- /verbosity:minimal
       - task: CMake@1
         displayName: "CMake Install fetpapi --config $(BuildType)"
         inputs:
-          workingDirectory: C:/fetpapi-build
+          workingDirectory: $(Agent.TempDirectory)/fetpapi-build
           cmakeArgs: --build . --config $(BuildType) --target INSTALL -- /verbosity:minimal
          
       - task: CMake@1
@@ -360,8 +362,9 @@ jobs:
             ..
             $(Generator)
             -Wno-dev -Wno-deprecated
-            -DFetpapi_DIR=C:/fetpapi-install/lib/cmake/Fetpapi
-            -DBoost_INCLUDE_DIR=C:/hostedtoolcache/windows/Boost/1.75.0/x86_64
+            -DFETPAPI_INCLUDE_DIR=$(Agent.TempDirectory)/fetpapi-install/include
+            -DFETPAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fetpapi-install/lib/Fetpapi.0.1.0.0.lib
+            -DBoost_INCLUDE_DIR=$(Agent.TempDirectory)/Boost/1.75.0/x86_64
             -DAVRO_INCLUDE_DIR=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/include
             -DAVRO_LIBRARY_RELEASE=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/lib/avrocpp_s.lib
 
@@ -392,7 +395,7 @@ jobs:
       - powershell: |
           $Url = "https://sourceforge.net/projects/boost/files/boost-binaries/1.75.0/boost_1_75_0-msvc-14.2-64.exe"
           (New-Object System.Net.WebClient).DownloadFile($Url, "$env:TEMP\boost.exe")
-          Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\hostedtoolcache\windows\Boost\1.75.0\x86_64"  
+          Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=$(Agent.TempDirectory)\Boost\1.75.0\x86_64"  
         displayName: 'Install Boost 1.75'
     
       # AVRO
@@ -414,7 +417,7 @@ jobs:
             $(Build.SourcesDirectory)/avro-cpp-1.10.2
             $(Generator)
             -Wno-dev -Wno-deprecated
-            -DBoost_INCLUDE_DIR=C:/hostedtoolcache/windows/Boost/1.75.0/x86_64
+            -DBoost_INCLUDE_DIR=$(Agent.TempDirectory)/Boost/1.75.0/x86_64
             -DCMAKE_INSTALL_PREFIX=$(Agent.TempDirectory)/avro-cpp-1.10.2-install
       - task: CMake@1
         displayName: "CMake build AVRO --config $(BuildType)"
@@ -429,101 +432,101 @@ jobs:
        
       # HDF5      
       - powershell: |
-          Invoke-WebRequest https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.12/hdf5-1.12.0/bin/hdf5-1.12.0-Std-win10_64-vs16.zip -OutFile C:\hdf5-1.12.0-Std-win10_64-vs16.zip
-          Expand-Archive C:\hdf5-1.12.0-Std-win10_64-vs16.zip -DestinationPath C:\
-          msiexec.exe /i "C:\hdf\HDF5-1.12.0-win64.msi" /qn INSTALL_ROOT=C:\hdf5-1.12.0-win64-vs2019
+          Invoke-WebRequest https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.12/hdf5-1.12.0/bin/hdf5-1.12.0-Std-win10_64-vs16.zip -OutFile $(Agent.TempDirectory)\hdf5-1.12.0-Std-win10_64-vs16.zip
+          Expand-Archive $(Agent.TempDirectory)\hdf5-1.12.0-Std-win10_64-vs16.zip -DestinationPath $(Agent.TempDirectory)\
+          msiexec.exe /i "$(Agent.TempDirectory)\hdf\HDF5-1.12.0-win64.msi" /qn INSTALL_ROOT=$(Agent.TempDirectory)\hdf5-1.12.0-win64-vs2019
         displayName: 'Install HDF5 1.12.0'
 
       # Minizip
       - powershell: |
-          git clone https://github.com/F2I-Consulting/Minizip.git C:/Minizip
+          git clone https://github.com/F2I-Consulting/Minizip.git $(Agent.TempDirectory)/Minizip
         displayName: 'Cloning Minizip'
       - task: CMake@1
         displayName: 'CMake configure Minizip'
         inputs:
-          workingDirectory: C:/Minizip-build
+          workingDirectory: $(Agent.TempDirectory)/Minizip-build
           cmakeArgs:
             ../Minizip
             $(Generator)
             -Wno-dev -Wno-deprecated
-            -DZLIB_INCLUDE_DIR=C:/hdf5-1.12.0-win64-vs2019/include
-            -DZLIB_LIBRARY_RELEASE=C:/hdf5-1.12.0-win64-vs2019/lib/zlib.lib
-            -DCMAKE_INSTALL_PREFIX=C:/Minizip-install
+            -DZLIB_INCLUDE_DIR=$(Agent.TempDirectory)/hdf5-1.12.0-win64-vs2019/include
+            -DZLIB_LIBRARY_RELEASE=$(Agent.TempDirectory)/hdf5-1.12.0-win64-vs2019/lib/zlib.lib
+            -DCMAKE_INSTALL_PREFIX=$(Agent.TempDirectory)/Minizip-install
       - task: CMake@1
         displayName: "CMake build Minizip --config $(BuildType)"
         inputs:
-          workingDirectory: C:/Minizip-build
+          workingDirectory: $(Agent.TempDirectory)/Minizip-build
           cmakeArgs: --build . --config $(BuildType) -- /verbosity:minimal
       - task: CMake@1
         displayName: "CMake Install Minizip --config $(BuildType)"
         inputs:
-          workingDirectory: C:/Minizip-build
+          workingDirectory: $(Agent.TempDirectory)/Minizip-build
           cmakeArgs: --build . --config $(BuildType) --target INSTALL -- /verbosity:minimal    
           
       # fesapi
       - powershell: |
-          git clone https://github.com/F2I-Consulting/fesapi.git C:/fesapi
+          git clone https://github.com/F2I-Consulting/fesapi.git $(Agent.TempDirectory)/fesapi
         displayName: 'Cloning fesapi'
       - task: CMake@1
         displayName: 'CMake configure fesapi'
         inputs:
-          workingDirectory: C:/fesapi-build
+          workingDirectory: $(Agent.TempDirectory)/fesapi-build
           cmakeArgs:
             ../fesapi
             $(Generator)
             -Wno-dev -Wno-deprecated
             -DHDF5_BUILT_AS_DYNAMIC_LIB=TRUE
-            -DHDF5_C_INCLUDE_DIR=C:/hdf5-1.12.0-win64-vs2019/include
-            -DHDF5_C_LIBRARY_RELEASE=C:/hdf5-1.12.0-win64-vs2019/lib/hdf5.lib
-            -DMINIZIP_INCLUDE_DIR=C:/Minizip-install/include
-            -DMINIZIP_LIBRARY_RELEASE=C:/Minizip-install/lib/minizip.lib
-            -DZLIB_INCLUDE_DIR=C:/hdf5-1.12.0-win64-vs2019/include
-            -DZLIB_LIBRARY_RELEASE=C:/hdf5-1.12.0-win64-vs2019/lib/zlib.lib
-            -DSZIP_LIBRARY_RELEASE=C:/hdf5-1.12.0-win64-vs2019/lib/szip.lib
-            -DBoost_INCLUDE_DIR=C:/hostedtoolcache/windows/Boost/1.75.0/x86_64
+            -DHDF5_C_INCLUDE_DIR=$(Agent.TempDirectory)/hdf5-1.12.0-win64-vs2019/include
+            -DHDF5_C_LIBRARY_RELEASE=$(Agent.TempDirectory)/hdf5-1.12.0-win64-vs2019/lib/hdf5.lib
+            -DMINIZIP_INCLUDE_DIR=$(Agent.TempDirectory)/Minizip-install/include
+            -DMINIZIP_LIBRARY_RELEASE=$(Agent.TempDirectory)/Minizip-install/lib/minizip.lib
+            -DZLIB_INCLUDE_DIR=$(Agent.TempDirectory)/hdf5-1.12.0-win64-vs2019/include
+            -DZLIB_LIBRARY_RELEASE=$(Agent.TempDirectory)/hdf5-1.12.0-win64-vs2019/lib/zlib.lib
+            -DSZIP_LIBRARY_RELEASE=$(Agent.TempDirectory)/hdf5-1.12.0-win64-vs2019/lib/szip.lib
+            -DBoost_INCLUDE_DIR=$(Agent.TempDirectory)/Boost/1.75.0/x86_64
             -DAVRO_INCLUDE_DIR=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/include
             -DAVRO_LIBRARY_RELEASE=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/lib/avrocpp_s.lib
-            -DCMAKE_INSTALL_PREFIX=C:/fesapi-install
+            -DCMAKE_INSTALL_PREFIX=$(Agent.TempDirectory)/fesapi-install
       - task: CMake@1
         displayName: "CMake build fesapi --config $(BuildType)"
         inputs:
-          workingDirectory: C:/fesapi-build
+          workingDirectory: $(Agent.TempDirectory)/fesapi-build
           cmakeArgs: --build . --config $(BuildType) -- /verbosity:minimal
       - task: CMake@1
         displayName: "CMake Install fesapi --config $(BuildType)"
         inputs:
-          workingDirectory: C:/fesapi-build
+          workingDirectory: $(Agent.TempDirectory)/fesapi-build
           cmakeArgs: --build . --config $(BuildType) --target INSTALL -- /verbosity:minimal     
           
       # fetpapi
       - powershell: |
-          git clone https://github.com/F2I-Consulting/fetpapi.git C:/fetpapi
+          git clone https://github.com/F2I-Consulting/fetpapi.git $(Agent.TempDirectory)/fetpapi
         displayName: 'Cloning fetpapi'
       - task: CMake@1
         displayName: 'CMake configure fetpapi'
         inputs:
-          workingDirectory: C:/fetpapi-build
+          workingDirectory: $(Agent.TempDirectory)/fetpapi-build
           cmakeArgs:
             ../fetpapi
             $(Generator)
             -Wno-dev -Wno-deprecated
-            -DBoost_INCLUDE_DIR=C:/hostedtoolcache/windows/Boost/1.75.0/x86_64
+            -DBoost_INCLUDE_DIR=$(Agent.TempDirectory)/Boost/1.75.0/x86_64
             -DAVRO_INCLUDE_DIR=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/include
             -DAVRO_LIBRARY_RELEASE=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/lib/avrocpp_s.lib
             -DWITH_FESAPI=TRUE
-            -DHDF5_C_INCLUDE_DIR=C:/hdf5-1.12.0-win64-vs2019/include
-            -DFESAPI_INCLUDE_DIR=C:/fesapi-install/include
-            -DFESAPI_LIBRARY_RELEASE=C:/fesapi-install/lib/FesapiCpp.2.1.0.0.lib
-            -DCMAKE_INSTALL_PREFIX=C:/fetpapi-install
+            -DHDF5_C_INCLUDE_DIR=$(Agent.TempDirectory)/hdf5-1.12.0-win64-vs2019/include
+            -DFESAPI_INCLUDE_DIR=$(Agent.TempDirectory)/fesapi-install/include
+            -DFESAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fesapi-install/lib/FesapiCpp.2.1.0.0.lib
+            -DCMAKE_INSTALL_PREFIX=$(Agent.TempDirectory)/fetpapi-install
       - task: CMake@1
         displayName: "CMake build fetpapi --config $(BuildType)"
         inputs:
-          workingDirectory: C:/fetpapi-build
+          workingDirectory: $(Agent.TempDirectory)/fetpapi-build
           cmakeArgs: --build . --config $(BuildType) -- /verbosity:minimal
       - task: CMake@1
         displayName: "CMake Install fetpapi --config $(BuildType)"
         inputs:
-          workingDirectory: C:/fetpapi-build
+          workingDirectory: $(Agent.TempDirectory)/fetpapi-build
           cmakeArgs: --build . --config $(BuildType) --target INSTALL -- /verbosity:minimal
          
       - task: CMake@1
@@ -533,13 +536,14 @@ jobs:
             ..
             $(Generator)
             -Wno-dev -Wno-deprecated
-            -DFetpapi_DIR=C:/fetpapi-install/lib/cmake/Fetpapi
-            -DBoost_INCLUDE_DIR=C:/hostedtoolcache/windows/Boost/1.75.0/x86_64
+            -DFETPAPI_INCLUDE_DIR=$(Agent.TempDirectory)/fetpapi-install/include
+            -DFETPAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fetpapi-install/lib/Fetpapi.0.1.0.0.lib
+            -DBoost_INCLUDE_DIR=$(Agent.TempDirectory)/Boost/1.75.0/x86_64
             -DAVRO_INCLUDE_DIR=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/include
             -DAVRO_LIBRARY_RELEASE=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/lib/avrocpp_s.lib
             -DWITH_FESAPI=TRUE
-            -DFESAPI_INCLUDE_DIR=C:/fesapi-install/include
-            -DFESAPI_LIBRARY_RELEASE=C:/fesapi-install/lib/FesapiCpp.2.1.0.0.lib
+            -DFESAPI_INCLUDE_DIR=$(Agent.TempDirectory)/fesapi-install/include
+            -DFESAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fesapi-install/lib/FesapiCpp.2.1.0.0.lib
             
       - task: CMake@1
         displayName: "Build --config $(BuildType)"
@@ -616,7 +620,8 @@ jobs:
         inputs:
           cmakeArgs:
             -Wno-dev -Wno-deprecated
-            -DFetpapi_DIR=$(Agent.TempDirectory)/fetpapi-build/install/lib/cmake/Fetpapi
+            -DFETPAPI_INCLUDE_DIR=$(Agent.TempDirectory)/fetpapi-build/install/include
+            -DFETPAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fetpapi-build/install/lib/libFetpapi.so
             -DAVRO_INCLUDE_DIR=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/include
             -DAVRO_LIBRARY_RELEASE=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/lib/libavrocpp_s.a
             -DCMAKE_BUILD_TYPE=Release
@@ -731,7 +736,8 @@ jobs:
         inputs:
           cmakeArgs:
             -Wno-dev -Wno-deprecated
-            -DFetpapi_DIR=$(Agent.TempDirectory)/fetpapi-build/install/lib/cmake/Fetpapi
+            -DFETPAPI_INCLUDE_DIR=$(Agent.TempDirectory)/fetpapi-build/install/install
+            -DFETPAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fetpapi-build/install/lib/libFetpapi.so
             -DAVRO_INCLUDE_DIR=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/include
             -DAVRO_LIBRARY_RELEASE=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/lib/libavrocpp_s.a
             -DWITH_FESAPI=TRUE
