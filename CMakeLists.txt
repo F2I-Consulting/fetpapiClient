@@ -90,7 +90,7 @@ if (WIN32)
 		target_link_libraries (${APPLICATION_NAME} PRIVATE ${FETPAPI_LIBRARY_DEBUG})
 	endif ()
 else (WIN32)
-	target_link_libraries (${APPLICATION_NAME} PRIVATE ${FESAPI_LIBRARY_RELEASE})
+	target_link_libraries (${APPLICATION_NAME} PRIVATE ${FETPAPI_LIBRARY_RELEASE})
 endif (WIN32)
 
 #target_link_libraries(${APPLICATION_NAME} PRIVATE Fetpapi::Fetpapi)
