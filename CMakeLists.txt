@@ -36,8 +36,6 @@ set (WITH_ETP_SSL OFF CACHE BOOL "Build Fesapi with ETP SSL support.")
 # checking for required dependencies
 # ============================================================================
 
-#find_package(Fetpapi REQUIRED)
-
 if (WIN32)
 	target_link_libraries (${APPLICATION_NAME} PRIVATE bcrypt.lib)
 	
@@ -47,7 +45,10 @@ if (WIN32)
 endif (WIN32)
 
 target_compile_definitions(${APPLICATION_NAME} PRIVATE BOOST_ALL_NO_LIB)
+
+find_package( Threads )
 target_link_libraries (${APPLICATION_NAME} PRIVATE ${Boost_SYSTEM_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+
 if (WIN32)
 	if (EXISTS ${APPLICATION_NAME} AND EXISTS ${AVRO_LIBRARY_DEBUG})
 		target_link_libraries (${APPLICATION_NAME} PRIVATE optimized ${AVRO_LIBRARY_RELEASE} debug ${AVRO_LIBRARY_DEBUG})
@@ -67,33 +68,6 @@ if (WITH_ETP_SSL)
 	endif()
 	target_link_libraries(${APPLICATION_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 endif ()
-
-#FETPAPI
-set (FETPAPI_INCLUDE_DIR FETPAPI_INCLUDE_DIR-NOTFOUND CACHE PATH "Path to the directory which contains the FETPAPI header files")
-if (NOT IS_DIRECTORY ${FETPAPI_INCLUDE_DIR})
-	message(WARNING "The FETPAPI include dir (FETPAPI_INCLUDE_DIR variable) does not look to be a valid directory. Please modify it.")
-endif ()
-set (FETPAPI_LIBRARY_RELEASE FETPAPI_LIBRARY_RELEASE-NOTFOUND CACHE FILEPATH "Path to the file which contains the FETPAPI library release")
-if (NOT EXISTS ${FETPAPI_LIBRARY_RELEASE})
-	message(WARNING "The FETPAPI library (FETPAPI_LIBRARY_RELEASE variable) does not look to be a valid file. Please modify it.")
-endif ()
-set (FETPAPI_LIBRARY_DEBUG FETPAPI_LIBRARY_DEBUG-NOTFOUND CACHE FILEPATH "Path to the file which contains the FETPAPI library DEBUG")
-if (NOT EXISTS ${FETPAPI_LIBRARY_DEBUG})
-	message(WARNING "The FETPAPI library (FETPAPI_LIBRARY_DEBUG variable) does not look to be a valid file. Please modify it.")
-endif ()
-if (WIN32)
-	if (EXISTS ${FETPAPI_LIBRARY_RELEASE} AND EXISTS ${FETPAPI_LIBRARY_DEBUG})
-		target_link_libraries (${APPLICATION_NAME} PRIVATE optimized ${FETPAPI_LIBRARY_RELEASE} debug ${FETPAPI_LIBRARY_DEBUG})
-	elseif (EXISTS ${FETPAPI_LIBRARY_RELEASE})
-		target_link_libraries (${APPLICATION_NAME} PRIVATE ${FETPAPI_LIBRARY_RELEASE})
-	elseif (EXISTS ${FETPAPI_LIBRARY_DEBUG})
-		target_link_libraries (${APPLICATION_NAME} PRIVATE ${FETPAPI_LIBRARY_DEBUG})
-	endif ()
-else (WIN32)
-	target_link_libraries (${APPLICATION_NAME} PRIVATE ${FETPAPI_LIBRARY_RELEASE})
-endif (WIN32)
-
-#target_link_libraries(${APPLICATION_NAME} PRIVATE Fetpapi::Fetpapi)
 
 if (WITH_FESAPI)
 	set (FESAPI_INCLUDE_DIR FESAPI_INCLUDE_DIR-NOTFOUND CACHE PATH "Path to the directory which contains the fesapi header files")
@@ -121,6 +95,31 @@ if (WITH_FESAPI)
 		target_link_libraries (${APPLICATION_NAME} PRIVATE ${FESAPI_LIBRARY_RELEASE})
 	endif (WIN32)
 endif (WITH_FESAPI)
+
+#FETPAPI
+set (FETPAPI_INCLUDE_DIR FETPAPI_INCLUDE_DIR-NOTFOUND CACHE PATH "Path to the directory which contains the FETPAPI header files")
+if (NOT IS_DIRECTORY ${FETPAPI_INCLUDE_DIR})
+	message(WARNING "The FETPAPI include dir (FETPAPI_INCLUDE_DIR variable) does not look to be a valid directory. Please modify it.")
+endif ()
+set (FETPAPI_LIBRARY_RELEASE FETPAPI_LIBRARY_RELEASE-NOTFOUND CACHE FILEPATH "Path to the file which contains the FETPAPI library release")
+if (NOT EXISTS ${FETPAPI_LIBRARY_RELEASE})
+	message(WARNING "The FETPAPI library (FETPAPI_LIBRARY_RELEASE variable) does not look to be a valid file. Please modify it.")
+endif ()
+set (FETPAPI_LIBRARY_DEBUG FETPAPI_LIBRARY_DEBUG-NOTFOUND CACHE FILEPATH "Path to the file which contains the FETPAPI library DEBUG")
+if (NOT EXISTS ${FETPAPI_LIBRARY_DEBUG})
+	message(WARNING "The FETPAPI library (FETPAPI_LIBRARY_DEBUG variable) does not look to be a valid file. Please modify it.")
+endif ()
+if (WIN32)
+	if (EXISTS ${FETPAPI_LIBRARY_RELEASE} AND EXISTS ${FETPAPI_LIBRARY_DEBUG})
+		target_link_libraries (${APPLICATION_NAME} PRIVATE optimized ${FETPAPI_LIBRARY_RELEASE} debug ${FETPAPI_LIBRARY_DEBUG})
+	elseif (EXISTS ${FETPAPI_LIBRARY_RELEASE})
+		target_link_libraries (${APPLICATION_NAME} PRIVATE ${FETPAPI_LIBRARY_RELEASE})
+	elseif (EXISTS ${FETPAPI_LIBRARY_DEBUG})
+		target_link_libraries (${APPLICATION_NAME} PRIVATE ${FETPAPI_LIBRARY_DEBUG})
+	endif ()
+else (WIN32)
+	target_link_libraries (${APPLICATION_NAME} PRIVATE ${FETPAPI_LIBRARY_RELEASE})
+endif (WIN32)
 
 # ============================================================================
 # SWIG clients
