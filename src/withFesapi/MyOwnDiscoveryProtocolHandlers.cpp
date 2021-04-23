@@ -40,15 +40,13 @@ void MyOwnDiscoveryProtocolHandlers::on_GetResourcesResponse(const Energistics::
 			std::cout << "targetCount : " << resource.targetCount.get() << std::endl;
 		std::cout << "*************************************************" << std::endl;
 
-
 		if (std::find(getObjectWhenDiscovered.begin(), getObjectWhenDiscovered.end(), correlationId) != getObjectWhenDiscovered.end()) {
 			const size_t openingParenthesis = resource.uri.find('(', 5);
 			if (openingParenthesis != std::string::npos) {
 				auto resqmlObj = repo->getDataObjectByUuid(resource.uri.substr(openingParenthesis + 1, 36));
 				if (resqmlObj == nullptr || resqmlObj->isPartial()) {
 					std::cout << "GET OBJECT -----------------------------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;			
-					getO.uris[std::to_string(index)] = resource.uri;
-					++index;
+					getO.uris[std::to_string(index++)] = resource.uri;
 				}
 			}
 		}

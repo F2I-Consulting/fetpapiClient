@@ -16,24 +16,10 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -----------------------------------------------------------------------*/
-#include "fetpapi/etp/ClientSessionLaunchers.h"
-#include "fetpapi/etp/fesapi/FesapiHdfProxy.h"
-#include "fetpapi/etp/ProtocolHandlers/DataArrayHandlers.h"
-#include "fetpapi/etp/ProtocolHandlers/StoreNotificationHandlers.h"
+#include <fetpapi/etp/ClientSessionLaunchers.h>
+#include <fetpapi/etp/fesapi/FesapiHdfProxy.h>
 
-#include "MyOwnCoreProtocolHandlers.h"
-#include "MyOwnDiscoveryProtocolHandlers.h"
-#include "MyOwnStoreProtocolHandlers.h"
-
-using namespace ETP_NS;
-
-void setProtocolHandlers(std::shared_ptr<ETP_NS::AbstractSession> session, COMMON_NS::DataObjectRepository* repo) {
-	session->setCoreProtocolHandlers(std::make_shared<MyOwnCoreProtocolHandlers>(session.get(), repo));
-	session->setDiscoveryProtocolHandlers(std::make_shared<MyOwnDiscoveryProtocolHandlers>(session.get(), repo));
-	session->setStoreProtocolHandlers(std::make_shared<MyOwnStoreProtocolHandlers>(session.get(), repo));
-	session->setDataArrayProtocolHandlers(std::make_shared<ETP_NS::DataArrayHandlers>(session.get()));
-	session->setStoreNotificationProtocolHandlers(std::make_shared<ETP_NS::StoreNotificationHandlers>(session.get()));
-}
+#include "MyInitializationParameters.h"
 
 int main(int argc, char **argv)
 {
@@ -54,6 +40,11 @@ int main(int argc, char **argv)
 	bool successfulConnection = false;
 #ifdef WITH_ETP_SSL
 	if (std::stoi(argv[2]) == 443) {
+
+		COMMON_NS::DataObjectRepository repo;
+		boost::uuids::random_generator gen;
+		MyInitializationParameters initializationParams(&repo, gen(), argv[1], std::stoi(argv[2]));
+
 		const std::string additionalCertificates = "-----BEGIN CERTIFICATE-----\n"
 			"MIIDxTCCAq2gAwIBAgIQAqxcJmoLQJuPC3nyrkYldzANBgkqhkiG9w0BAQUFADBs\n"
 			"MQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3\n"
@@ -97,22 +88,20 @@ int main(int argc, char **argv)
 			"hw4EbNX/3aBd7YdStysVAq45pmp06drE57xNNB6pXE0zX5IJL4hmXXeXxx12E6nV\n"
 			"5fEWCRE11azbJHFwLJhWC9kXtNHjUStedejV0NxPNO3CBWaAocvmMw==\n"
 			"-----END CERTIFICATE-----\n";
-		auto wssSession = ClientSessionLaunchers::createWssClientSession(argv[1], argv[2], argc < 4 ? "/" : argv[3], authorization,
+		auto wssSession = ETP_NS::ClientSessionLaunchers::createWssClientSession(&initializationParams, argc < 4 ? "/" : argv[3], authorization,
 			additionalCertificates);
-
-		COMMON_NS::DataObjectRepository repo;
-		repo.setHdfProxyFactory(new FesapiHdfProxyFactory(wssSession.get()));
-		setProtocolHandlers(wssSession, &repo);
+		repo.setHdfProxyFactory(new ETP_NS::FesapiHdfProxyFactory(wssSession.get()));
 
 		successfulConnection = wssSession->run();
 	}
 	else {
 #endif
-		auto session = ClientSessionLaunchers::createWsClientSession(argv[1], argv[2], argc < 4 ? "/" : argv[3], authorization);
-
 		COMMON_NS::DataObjectRepository repo;
-		repo.setHdfProxyFactory(new FesapiHdfProxyFactory(session.get()));
-		setProtocolHandlers(session, &repo);
+		boost::uuids::random_generator gen;
+		MyInitializationParameters initializationParams(&repo, gen(), argv[1], std::stoi(argv[2]));
+
+		std::shared_ptr<ETP_NS::PlainClientSession> session = ETP_NS::ClientSessionLaunchers::createWsClientSession(&initializationParams, argc < 4 ? "/" : argv[3], authorization);
+		repo.setHdfProxyFactory(new ETP_NS::FesapiHdfProxyFactory(session.get()));
 
 		successfulConnection = session->run();
 #ifdef WITH_ETP_SSL

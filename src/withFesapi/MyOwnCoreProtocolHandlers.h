@@ -18,9 +18,9 @@ under the License.
 -----------------------------------------------------------------------*/
 #pragma once
 
-#include "fetpapi/etp/ProtocolHandlers/CoreHandlers.h"
+#include <fetpapi/etp/ProtocolHandlers/CoreHandlers.h>
 
-#include "fesapi/common/AbstractObject.h"
+#include <fesapi/common/DataObjectRepository.h>
 
 class MyOwnCoreProtocolHandlers : public ETP_NS::CoreHandlers
 {
@@ -28,7 +28,7 @@ private:
 	COMMON_NS::DataObjectRepository* repo;
 
 public:
-	MyOwnCoreProtocolHandlers(ETP_NS::AbstractSession* mySession, COMMON_NS::DataObjectRepository* repo_): ETP_NS::CoreHandlers(mySession), repo(repo_) {}
+	MyOwnCoreProtocolHandlers(ETP_NS::AbstractSession* mySession, COMMON_NS::DataObjectRepository* repository): ETP_NS::CoreHandlers(mySession), repo(repository) {}
 	~MyOwnCoreProtocolHandlers() = default;
 
 	void on_OpenSession(const Energistics::Etp::v12::Protocol::Core::OpenSession & os, int64_t correlationId);
