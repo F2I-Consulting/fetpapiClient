@@ -16,13 +16,14 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -----------------------------------------------------------------------*/
-#include "fetpapi/etp/ClientSessionLaunchers.h"
+#include <fetpapi/etp/ClientSessionLaunchers.h>
+#include <fetpapi/etp/InitializationParameters.h>
+#include <fetpapi/etp/ProtocolHandlers/DataArrayHandlers.h>
+#include <fetpapi/etp/ProtocolHandlers/StoreNotificationHandlers.h>
 
 #include "MyOwnCoreProtocolHandlers.h"
 #include "MyOwnDiscoveryProtocolHandlers.h"
 #include "MyOwnStoreProtocolHandlers.h"
-#include "fetpapi/etp/ProtocolHandlers/DataArrayHandlers.h"
-#include "fetpapi/etp/ProtocolHandlers/StoreNotificationHandlers.h"
 
 using namespace ETP_NS;
 
@@ -53,6 +54,9 @@ int main(int argc, char **argv)
 	bool successfulConnection = false;
 #ifdef WITH_ETP_SSL
 	if (std::stoi(argv[2]) == 443) {
+		boost::uuids::random_generator gen;
+		InitializationParameters initializationParams(gen(), argv[1], std::stoi(argv[2]));
+
 		const std::string additionalCertificates = "-----BEGIN CERTIFICATE-----\n"
 			"MIIDxTCCAq2gAwIBAgIQAqxcJmoLQJuPC3nyrkYldzANBgkqhkiG9w0BAQUFADBs\n"
 			"MQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3\n"
@@ -97,14 +101,17 @@ int main(int argc, char **argv)
 			"5fEWCRE11azbJHFwLJhWC9kXtNHjUStedejV0NxPNO3CBWaAocvmMw==\n"
 			"-----END CERTIFICATE-----\n";
 
-		auto wssSession = ClientSessionLaunchers::createWssClientSession(argv[1], argv[2], argc < 4 ? "/" : argv[3], authorization,
+		auto wssSession = ClientSessionLaunchers::createWssClientSession(&initializationParams, argc < 4 ? "/" : argv[3], authorization,
 			additionalCertificates);
 		setProtocolHandlers(wssSession);
 		successfulConnection = wssSession->run();
 	}
 	else {
 #endif
-		auto session = ClientSessionLaunchers::createWsClientSession(argv[1], argv[2], argc < 4 ? "/" : argv[3], authorization);
+		boost::uuids::random_generator gen;
+		InitializationParameters initializationParams(gen(), argv[1], std::stoi(argv[2]));
+
+		auto session = ClientSessionLaunchers::createWsClientSession(&initializationParams, argc < 4 ? "/" : argv[3], authorization);
 		setProtocolHandlers(session);
 		successfulConnection = session->run();
 #ifdef WITH_ETP_SSL
