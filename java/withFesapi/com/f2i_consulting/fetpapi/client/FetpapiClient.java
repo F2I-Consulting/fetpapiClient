@@ -19,11 +19,8 @@ under the License.
 package com.f2i_consulting.fetpapi.client;
 
 import com.f2i_consulting.fesapi.common.DataObjectRepository;
-import com.f2i_consulting.fetpapi.FesapiHdfProxyFactory;
 import com.f2i_consulting.fetpapi.fetpapi;
-import com.f2i_consulting.fetpapi.client.handlers.MyOwnCoreHandlers;
-import com.f2i_consulting.fetpapi.client.handlers.MyOwnDiscoveryProtocolHandlers;
-import com.f2i_consulting.fetpapi.client.handlers.MyOwnStoreProtocolHandlers;
+import com.f2i_consulting.fetpapi.etp.FesapiHdfProxyFactory;
 import com.f2i_consulting.fetpapi.etp.PlainClientSession;
 
 public class FetpapiClient {
@@ -47,14 +44,12 @@ public class FetpapiClient {
 	}
 
 	public static void main(String[] args) {
-		PlainClientSession session = fetpapi.createWsClientSession("127.0.0.1", "8080", "/", "");
-
 		DataObjectRepository repo = new DataObjectRepository();
-		repo.setHdfProxyFactory(new FesapiHdfProxyFactory(session));
 		
-		session.setCoreProtocolHandlers(new MyOwnCoreHandlers(session, repo));
-		session.setDiscoveryProtocolHandlers(new MyOwnDiscoveryProtocolHandlers(session));
-		session.setStoreProtocolHandlers(new MyOwnStoreProtocolHandlers(session, repo));
+		MyInitializationParameters initParam = new MyInitializationParameters("etp.f2i-consulting.com", 80, repo);
+		PlainClientSession session = fetpapi.createWsClientSession(initParam, "/", "");
+
+		repo.setHdfProxyFactory(new FesapiHdfProxyFactory(session));
 		
 		session.run();
 		System.out.println("FINISHED");

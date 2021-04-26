@@ -44,6 +44,7 @@ void printHelp()
 	std::cout << "\tPing" << std::endl << "\t\tPing the server" << std::endl << std::endl;
 	std::cout << "\tList" << std::endl << "\t\tList the objects which have been got from ETP to the in-memory Dataobject repository" << std::endl << std::endl;
 	std::cout << "\tPutXmldAndHdfAtOnce" << std::endl << "\t\tPut a dummy point set representation to the store sending XML and HDF5 points at once." << std::endl << std::endl;
+	std::cout << "\tGetDataspaces" << std::endl << "\t\tGet all store dataspaces" << std::endl << std::endl;
 	std::cout << "\tGetResources URI scope(default self) depth(default 1) countObjects(true or false, default is true) getObject(true or false, default is false) dataTypeFilter,dataTypeFilter,...(default noFilter)" << std::endl << std::endl;
 	std::cout << "\tGetDataObjects dataObjectURI,dataObjectURI,..." << std::endl << "\t\tGet the objects from an ETP store and store them into the in memory Dataobject repository (only create partial TARGET relationships, not any SOURCE relationships)" << std::endl << std::endl;
 	std::cout << "\tGetXYZPoints URI" << std::endl << "\t\tGet the XYZ points of a rep from store and print some of them." << std::endl << std::endl;
@@ -220,8 +221,12 @@ void askUser(ETP_NS::AbstractSession* session, COMMON_NS::DataObjectRepository* 
 			if (commandTokens[0] == "Ping") {
 				Energistics::Etp::v12::Protocol::Core::Ping ping;
 				ping.currentDateTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-				session->send(ping, 0, 0x02); // 0x10 requires Acknowledge from the store
+				session->send(ping, 0, 0x02);
 				std::cout << "PING at " << ping.currentDateTime << std::endl;
+			}
+			else if (commandTokens[0] == "GetDataspaces") {
+				Energistics::Etp::v12::Protocol::Dataspace::GetDataspaces msg;
+				session->send(msg, 0, 0x02);
 			}
 			else if (commandTokens[0] == "List") {
 				std::cout << "*** START LISTING ***" << std::endl;

@@ -148,7 +148,7 @@ if (WITH_FESAPI)
 	target_include_directories(${APPLICATION_NAME} PRIVATE ${FESAPI_INCLUDE_DIR})
 else (WITH_FESAPI)
 	file (GLOB ALL_CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/withoutFesapi/*.cpp)
-	file (GLOB ALL_H_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/withoutFesapi*.h)
+	file (GLOB ALL_H_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/withoutFesapi/*.h)
 endif (WITH_FESAPI)
 
 target_sources(${APPLICATION_NAME} PRIVATE ${ALL_CPP_FILES} ${ALL_H_FILES})
